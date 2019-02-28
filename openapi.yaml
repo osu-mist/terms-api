@@ -48,7 +48,7 @@ paths:
         200:
           description: Successful response
           schema:
-            $ref: '#/definitions/TermsResult'
+            $ref: '#/definitions/PaginatedTermsResult'
         400:
           description: Bad request
           schema:
@@ -234,6 +234,14 @@ definitions:
       data:
         $ref: '#/definitions/TermResource'
   TermsResult:
+    properties:
+      links:
+        $ref: '#/definitions/SelfLink'
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/TermResource'
+  PaginatedTermsResult:
     properties:
       links:
         allOf:
