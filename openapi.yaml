@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: Express API Skeleton
-  description: Skeleton for Express APIs
+  title: Calendar API
+  description: The API provides calendar data such as terms, holiday schedule, etc.
   version: v1
   license:
     name: GNU Affero General Public License Version 3
@@ -16,31 +16,39 @@ host: api.oregonstate.edu
 basePath: /v1
 externalDocs:
   description: GitHub Repository
-  url: https://github.com/osu-mist/express-api-skeleton
+  url: https://github.com/osu-mist/calendar-api
 produces:
   - application/json
 paths:
-  /pets:
+  /calendar/terms:
     get:
-      summary: List all pets
+      summary: List all terms
       tags:
-        - pets
-      description: Get all pets
-      operationId: getPets
+        - calendar
+        - terms
+      description: Get all terms
+      operationId: getTerms
       parameters:
         - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/pageNumber'
         - $ref: '#/parameters/pageSize'
         - in: query
-          name: species
-          description: Search by pet species
+          name: year
+          description: Search terms by year. For example, 2019
           required: false
           type: string
+          pattern: '^\d{4}$'
+        - in: query
+          name: date
+          description: Search terms by date. For example, 2019-01-01
+          required: false
+          type: string
+          format: date
       responses:
         200:
           description: Successful response
           schema:
-            $ref: '#/definitions/PetsResult'
+            $ref: '#/definitions/TermsResult'
         400:
           description: Bad request
           schema:
@@ -49,29 +57,67 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-  /pets/{id}:
+  /calendar/terms/{termCode}:
     get:
-      summary: Info for a specific pet
+      summary: Info for a specific term
       tags:
-        - pets
-      description: Get pet by unique ID
-      operationId: getPetById
+        - calendar
+        - terms
+      description: Get term by term code
+      operationId: getTermByTermCode
       parameters:
         - $ref: '#/parameters/authorization'
-        - name: id
+        - name: termCode
           in: path
-          description: Unique Pet ID
+          description: 6-digits unique code
           required: true
           type: string
+          pattern: '^\d{6}$'
       responses:
         200:
           description: Successful response
           schema:
-            $ref: '#/definitions/PetResult'
+            $ref: '#/definitions/TermResult'
         404:
           description: PetResource not found
           schema:
             $ref: '#/definitions/Errors'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /calendar/terms/current:
+    get:
+      summary: Info for the current term
+      tags:
+        - calendar
+        - terms
+      description: Get the info of the current term
+      operationId: getCurrentTerm
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: '#/definitions/TermResult'
+        500:
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/Errors'
+  /calendar/terms/open:
+    get:
+      summary: Returns only the terms that a student can register for
+      tags:
+        - calendar
+        - terms
+      description: List terms open for registration is the first step of the registration process flow
+      operationId: getOpenTerms
+      parameters:
+        - $ref: '#/parameters/authorization'
+      responses:
+        200:
+          description: Successful response
+          schema:
+            $ref: '#/definitions/TermsResult'
         500:
           description: Internal server error
           schema:
@@ -143,37 +189,51 @@ definitions:
         type: string
         format: url
         description: The next page of data
-  PetResource:
+  TermResource:
     properties:
       id:
         type: string
-        description: A unique ID of pet
+        description: A 6-digits unique term code
       type:
         type: string
-        enum: [pet]
+        enum: [term]
       links:
         $ref: '#/definitions/SelfLink'
       attributes:
         properties:
-          name:
+          description:
             type: string
-            description: Name of pet
-            example: Hedwig
-          owner:
+            description: Human readable academic term description.
+            example: Fall 2018
+          startDate:
             type: string
-            description: Name of owner
-            example: Harry Potter
-          species:
+            description: First day of classes in this term. Format is in YYYY-MM-DD.
+            format: date
+            example: 2018-09-01
+          endDate:
             type: string
-            description: Species of pet
-            example: Owl
-  PetResult:
+            description: Last day of classes in this term. Format is in YYYY-MM-DD.
+            format: date
+            example: 2018-12-07
+          financialAidYear:
+            type: string
+            description: Aid year associated with this term. This is a four digit code. For example, for Summer 2016, the value would be 1617
+            example: 1819
+          housingStartDate:
+            type: string
+            description: First day for meal plan and housing assignments. Format is in YYYY-MM-DD.
+            example: 2018-09-23
+          housingEndDate:
+            type: string
+            description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD.
+            example: 2018-12-08
+  TermResult:
     properties:
       links:
         $ref: '#/definitions/SelfLink'
       data:
-        $ref: '#/definitions/PetResource'
-  PetsResult:
+        $ref: '#/definitions/TermResource'
+  TermsResult:
     properties:
       links:
         allOf:
@@ -184,7 +244,7 @@ definitions:
       data:
         type: array
         items:
-          $ref: '#/definitions/PetResource'
+          $ref: '#/definitions/TermResource'
   Error:
     properties:
       status:
