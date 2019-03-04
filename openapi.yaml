@@ -40,10 +40,21 @@ paths:
           pattern: '^\d{4}$'
         - in: query
           name: date
-          description: Search terms by date. For example, 2019-01-01
+          description: Search term by date. For example, 2019-01-01
           required: false
           type: string
           format: date
+        - in: query
+          name: status
+          description: |
+            Search term by staus:
+            - `current` - Return the current term
+            - `prev` - Return the previous term
+            - `next` - Return the next term
+            - `open` - Returns only the terms that a student can register for
+          required: false
+          type: string
+          enum: ['current', 'prev', 'next', 'open']
       responses:
         200:
           description: Successful response
@@ -69,7 +80,7 @@ paths:
         - $ref: '#/parameters/authorization'
         - name: termCode
           in: path
-          description: 6-digits unique code
+          description: 6-digit unique code
           required: true
           type: string
           pattern: '^\d{6}$'
@@ -82,42 +93,6 @@ paths:
           description: PetResource not found
           schema:
             $ref: '#/definitions/Errors'
-        500:
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/Errors'
-  /calendar/terms/current:
-    get:
-      summary: Info for the current term
-      tags:
-        - calendar
-        - terms
-      description: Get the info of the current term
-      operationId: getCurrentTerm
-      responses:
-        200:
-          description: Successful response
-          schema:
-            $ref: '#/definitions/TermResult'
-        500:
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/Errors'
-  /calendar/terms/open:
-    get:
-      summary: Returns only the terms that a student can register for
-      tags:
-        - calendar
-        - terms
-      description: List terms open for registration is the first step of the registration process flow
-      operationId: getOpenTerms
-      parameters:
-        - $ref: '#/parameters/authorization'
-      responses:
-        200:
-          description: Successful response
-          schema:
-            $ref: '#/definitions/TermsResult'
         500:
           description: Internal server error
           schema:
