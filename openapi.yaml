@@ -144,7 +144,7 @@ definitions:
         properties:
           description:
             type: string
-            description: Human readable academic term description.
+            description: Human readable academic term description
             example: Winter 2019
           season:
             type: string
@@ -153,33 +153,33 @@ definitions:
             enum: ['Fall', 'Winter', 'Summer', 'Spring']
           calendarYear:
             type: string
-            description: Calendar year
+            description: A 4-digit calendar year
             example: 2019
           academicYear:
             type: string
-            description: Academic year
+            description: Academic year associated with this term. This is a 4-digit code
             example: 1819
           financialAidYear:
             type: string
-            description: Aid year associated with this term. This is a four digit code. For example, for Summer 2018, the value would be 1819
+            description: Aid year associated with this term. This is a 4-digit code. For example, for Summer 2018, the value would be 1819
             example: 1819
           startDate:
             type: string
-            description: First day of classes in this term. Format is in YYYY-MM-DD.
+            description: First day of classes in this term. Format is in YYYY-MM-DD
             format: date
             example: 2019-01-07
           endDate:
             type: string
-            description: Last day of classes in this term. Format is in YYYY-MM-DD.
+            description: Last day of classes in this term. Format is in YYYY-MM-DD
             format: date
             example: 2019-03-22
           housingStartDate:
             type: string
-            description: First day for meal plan and housing assignments. Format is in YYYY-MM-DD.
+            description: First day for meal plan and housing assignments. Format is in YYYY-MM-DD
             example: 2019-01-06
           housingEndDate:
             type: string
-            description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD.
+            description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD
             example: 2019-03-16
           status:
             type: array
