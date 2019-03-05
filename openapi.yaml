@@ -26,15 +26,25 @@ paths:
       tags:
         - calendar
         - terms
-      description: Get all terms
+      description: Get terms
       operationId: getTerms
       parameters:
         - $ref: '#/parameters/authorization'
-        - $ref: '#/parameters/pageNumber'
-        - $ref: '#/parameters/pageSize'
         - in: query
-          name: year
-          description: Search terms by year. For example, 2019
+          name: academicYear
+          description: Search terms by academic year. For example, 1819
+          required: false
+          type: string
+          pattern: '^\d{4}$'
+        - in: query
+          name: calendarYear
+          description: Search terms by calendar year. For example, 2019
+          required: false
+          type: string
+          pattern: '^\d{4}$'
+        - in: query
+          name: financialAidYear
+          description: Search terms by financial aid year. For example, 1819
           required: false
           type: string
           pattern: '^\d{4}$'
@@ -45,21 +55,30 @@ paths:
           type: string
           format: date
         - in: query
-          name: status
-          description: |
-            Search term by staus:
-            - `current` - Return the current term
-            - `prev` - Return the previous term
-            - `next` - Return the next term
-            - `open` - Returns only the terms that a student can register for
+          name: housingDate
+          description: Search term by housing date. For example, 2019-01-01
           required: false
           type: string
-          enum: ['current', 'prev', 'next', 'open']
+          format: date
+        - in: query
+          name: status
+          description: |
+            Filter terms by staus:
+            - `completed` - term has been completed
+            - `current` - current term
+            - `open` - terms that a student can register for
+            - `not-open`
+          required: false
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: ['completed', 'current', 'open', 'not-open']
       responses:
         200:
           description: Successful response
           schema:
-            $ref: '#/definitions/PaginatedTermsResult'
+            $ref: '#/definitions/TermsResult'
         400:
           description: Bad request
           schema:
@@ -90,7 +109,7 @@ paths:
           schema:
             $ref: '#/definitions/TermResult'
         404:
-          description: PetResource not found
+          description: Term not found
           schema:
             $ref: '#/definitions/Errors'
         500:
@@ -104,71 +123,18 @@ parameters:
     type: string
     required: true
     description: '"Bearer [token]" where [token] is your OAuth2 access token'
-  pageNumber:
-    name: page[number]
-    in: query
-    type: integer
-    required: false
-    description: Page number of results
-    default: 1
-    minimum: 1
-  pageSize:
-    name: page[size]
-    in: query
-    type: integer
-    required: false
-    description: Number of results to return
-    default: 25
-    maximum: 500
-    minimum: 1
 definitions:
-  Meta:
-    properties:
-      totalResults:
-        type: integer
-        description: Total number of results
-        example: 10
-      totalPage:
-        type: integer
-        description: Total number of pages
-        example: 10
-      currentPageNumber:
-        type: integer
-        description: Page number of the returned results
-        example: 1
-      currentPageSize:
-        type: integer
-        description: Number of results per page
-        example: 25
   SelfLink:
     properties:
       self:
         type: string
         format: url
         description: Self-link of current resource
-  PaginationLinks:
-    properties:
-      first:
-        type: string
-        format: url
-        description: The first page of data
-      last:
-        type: string
-        format: url
-        description: The last page of data
-      prev:
-        type: string
-        format: url
-        description: The previous page of data
-      next:
-        type: string
-        format: url
-        description: The next page of data
   TermResource:
     properties:
       id:
         type: string
-        description: A 6-digits unique term code
+        description: A 6-digit unique term code
       type:
         type: string
         enum: [term]
@@ -179,29 +145,49 @@ definitions:
           description:
             type: string
             description: Human readable academic term description.
-            example: Fall 2018
+            example: Winter 2019
+          season:
+            type: string
+            description: Season of the term
+            example: Winter
+            enum: ['Fall', 'Winter', 'Summer', 'Spring']
+          calendarYear:
+            type: string
+            description: Calendar year
+            example: 2019
+          academicYear:
+            type: string
+            description: Academic year
+            example: 1819
+          financialAidYear:
+            type: string
+            description: Aid year associated with this term. This is a four digit code. For example, for Summer 2018, the value would be 1819
+            example: 1819
           startDate:
             type: string
             description: First day of classes in this term. Format is in YYYY-MM-DD.
             format: date
-            example: 2018-09-01
+            example: 2019-01-07
           endDate:
             type: string
             description: Last day of classes in this term. Format is in YYYY-MM-DD.
             format: date
-            example: 2018-12-07
-          financialAidYear:
-            type: string
-            description: Aid year associated with this term. This is a four digit code. For example, for Summer 2016, the value would be 1617
-            example: 1819
+            example: 2019-03-22
           housingStartDate:
             type: string
             description: First day for meal plan and housing assignments. Format is in YYYY-MM-DD.
-            example: 2018-09-23
+            example: 2019-01-06
           housingEndDate:
             type: string
             description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD.
-            example: 2018-12-08
+            example: 2019-03-16
+          status:
+            type: array
+            description: The status of the term
+            items:
+              type: string
+              enum: ['completed', 'current', 'open', 'not-open']
+            example: ['current', 'open']
   TermResult:
     properties:
       links:
@@ -212,18 +198,6 @@ definitions:
     properties:
       links:
         $ref: '#/definitions/SelfLink'
-      data:
-        type: array
-        items:
-          $ref: '#/definitions/TermResource'
-  PaginatedTermsResult:
-    properties:
-      links:
-        allOf:
-          - $ref: '#/definitions/SelfLink'
-          - $ref: '#/definitions/PaginationLinks'
-      meta:
-        $ref: '#/definitions/Meta'
       data:
         type: array
         items:
