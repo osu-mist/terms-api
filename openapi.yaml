@@ -72,17 +72,17 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: ['completed', 'current', 'open', 'not-open']
+            enum: [completed, current, open, not-open]
       responses:
-        200:
+        '200':
           description: Successful response
           schema:
             $ref: '#/definitions/TermsResult'
-        400:
+        '400':
           description: Bad request
           schema:
             $ref: '#/definitions/Errors'
-        500:
+        '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
@@ -102,15 +102,15 @@ paths:
           type: string
           pattern: '^\d{6}$'
       responses:
-        200:
+        '200':
           description: Successful response
           schema:
             $ref: '#/definitions/TermResult'
-        404:
+        '404':
           description: Term not found
           schema:
             $ref: '#/definitions/Errors'
-        500:
+        '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
@@ -136,7 +136,7 @@ definitions:
         pattern: '^\d{6}$'
       type:
         type: string
-        enum: ['term']
+        enum: [term]
       links:
         $ref: '#/definitions/SelfLink'
       attributes:
@@ -144,12 +144,12 @@ definitions:
           description:
             type: string
             description: Human readable academic term description
-            example: 'Winter 2019'
+            example: Winter 2019
           season:
             type: string
             description: Season of the term
-            example: 'Winter'
-            enum: ['Fall', 'Winter', 'Summer', 'Spring']
+            example: Winter
+            enum: [Fall, Winter, Summer, Spring]
           calendarYear:
             type: string
             description: A 4-digit calendar year
@@ -169,29 +169,29 @@ definitions:
             type: string
             description: First day of classes in this term. Format is in YYYY-MM-DD
             format: date
-            example: '2019-01-07'
+            example: 2019-01-07
           endDate:
             type: string
             description: Last day of classes in this term. Format is in YYYY-MM-DD
             format: date
-            example: '2019-03-22'
+            example: 2019-03-22
           housingStartDate:
             type: string
             description: First day for meal plan and housing assignments. Format is in YYYY-MM-DD
             format: date
-            example: '2019-01-06'
+            example: 2019-01-06
           housingEndDate:
             type: string
             description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD
             format: date
-            example: '2019-03-16'
+            example: 2019-03-16
           status:
             type: array
             description: The status of the term
             items:
               type: string
-              enum: ['completed', 'current', 'open', 'not-open']
-            example: ['current', 'open']
+              enum: [completed, current, open, not-open]
+            example: [current, open]
   TermResult:
     properties:
       links:
@@ -211,7 +211,7 @@ definitions:
       status:
         type: string
         description: HTTP status code
-        example: 123
+        example: '123'
       title:
         type: string
         description: A short, user readable summary of the error
@@ -219,7 +219,7 @@ definitions:
       code:
         type: string
         description: An application-specific error code
-        example: 1234
+        example: '1234'
       detail:
         type: string
         description: A long description of the error that may contain instance-specific details
