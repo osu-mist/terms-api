@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: Calendar API
-  description: The API provides calendar data such as terms, holiday schedule, etc.
+  title: Terms API
+  description: The API provides terms data.
   version: v1
   license:
     name: GNU Affero General Public License Version 3
@@ -16,15 +16,14 @@ host: api.oregonstate.edu
 basePath: /v1
 externalDocs:
   description: GitHub Repository
-  url: https://github.com/osu-mist/calendar-api
+  url: https://github.com/osu-mist/terms-api
 produces:
   - application/json
 paths:
-  /calendar/terms:
+  /terms:
     get:
       summary: List all terms
       tags:
-        - calendar
         - terms
       description: Get terms
       operationId: getTerms
@@ -87,11 +86,10 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-  /calendar/terms/{termCode}:
+  /terms/{termCode}:
     get:
       summary: Info for a specific term
       tags:
-        - calendar
         - terms
       description: Get term by term code
       operationId: getTermByTermCode
