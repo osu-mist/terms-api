@@ -62,11 +62,11 @@ paths:
         - in: query
           name: status
           description: |
-            Filter terms by staus:
+            Filter terms by status:
             - `completed` - term has been completed
             - `current` - current term
             - `open` - terms that a student can register for
-            - `not-open`
+            - `not-open` - terms which are not open for registeration yet
           required: false
           type: array
           collectionFormat: csv
@@ -133,9 +133,10 @@ definitions:
       id:
         type: string
         description: A 6-digit unique term code
+        pattern: '^\d{6}$'
       type:
         type: string
-        enum: [term]
+        enum: ['term']
       links:
         $ref: '#/definitions/SelfLink'
       attributes:
@@ -143,42 +144,47 @@ definitions:
           description:
             type: string
             description: Human readable academic term description
-            example: Winter 2019
+            example: 'Winter 2019'
           season:
             type: string
             description: Season of the term
-            example: Winter
+            example: 'Winter'
             enum: ['Fall', 'Winter', 'Summer', 'Spring']
           calendarYear:
             type: string
             description: A 4-digit calendar year
-            example: 2019
+            pattern: '^\d{4}$'
+            example: '2019'
           academicYear:
             type: string
             description: Academic year associated with this term. This is a 4-digit code
-            example: 1819
+            pattern: '^\d{4}$'
+            example: '1819'
           financialAidYear:
             type: string
             description: Aid year associated with this term. This is a 4-digit code. For example, for Summer 2018, the value would be 1819
-            example: 1819
+            pattern: '^\d{4}$'
+            example: '1819'
           startDate:
             type: string
             description: First day of classes in this term. Format is in YYYY-MM-DD
             format: date
-            example: 2019-01-07
+            example: '2019-01-07'
           endDate:
             type: string
             description: Last day of classes in this term. Format is in YYYY-MM-DD
             format: date
-            example: 2019-03-22
+            example: '2019-03-22'
           housingStartDate:
             type: string
             description: First day for meal plan and housing assignments. Format is in YYYY-MM-DD
-            example: 2019-01-06
+            format: date
+            example: '2019-01-06'
           housingEndDate:
             type: string
             description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD
-            example: 2019-03-16
+            format: date
+            example: '2019-03-16'
           status:
             type: array
             description: The status of the term
