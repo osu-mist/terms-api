@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
-  title: Express API Skeleton
-  description: Skeleton for Express APIs
+  title: Terms API
+  description: The API provides terms data.
   version: v1
   license:
     name: GNU Affero General Public License Version 3
@@ -16,63 +16,101 @@ host: api.oregonstate.edu
 basePath: /v1
 externalDocs:
   description: GitHub Repository
-  url: https://github.com/osu-mist/express-api-skeleton
+  url: https://github.com/osu-mist/terms-api
 produces:
   - application/json
 paths:
-  /pets:
+  /terms:
     get:
-      summary: List all pets
+      summary: List all terms
       tags:
-        - pets
-      description: Get all pets
-      operationId: getPets
+        - terms
+      description: Get terms
+      operationId: getTerms
       parameters:
         - $ref: '#/parameters/authorization'
-        - $ref: '#/parameters/pageNumber'
-        - $ref: '#/parameters/pageSize'
         - in: query
-          name: species
-          description: Search by pet species
+          name: academicYear
+          description: Search terms by academic year. For example, 1819
           required: false
           type: string
+          pattern: '^\d{4}$'
+        - in: query
+          name: calendarYear
+          description: Search terms by calendar year. For example, 2019
+          required: false
+          type: string
+          pattern: '^\d{4}$'
+        - in: query
+          name: financialAidYear
+          description: Search terms by financial aid year. For example, 1819
+          required: false
+          type: string
+          pattern: '^\d{4}$'
+        - in: query
+          name: date
+          description: Search term by date. For example, 2019-01-01
+          required: false
+          type: string
+          format: date
+        - in: query
+          name: housingDate
+          description: Search term by housing date. For example, 2019-01-01
+          required: false
+          type: string
+          format: date
+        - in: query
+          name: status
+          description: |
+            Filter terms by status:
+            - `completed` - term has been completed
+            - `current` - current term
+            - `open` - terms that a student can register for
+            - `not-open` - terms which are not open for registration yet
+          required: false
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [completed, current, open, not-open]
       responses:
-        200:
+        '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/PetsResult'
-        400:
+            $ref: '#/definitions/TermsResult'
+        '400':
           description: Bad request
           schema:
             $ref: '#/definitions/Errors'
-        500:
+        '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
-  /pets/{id}:
+  /terms/{termCode}:
     get:
-      summary: Info for a specific pet
+      summary: Info for a specific term
       tags:
-        - pets
-      description: Get pet by unique ID
-      operationId: getPetById
+        - terms
+      description: Get term by term code
+      operationId: getTermByTermCode
       parameters:
         - $ref: '#/parameters/authorization'
-        - name: id
+        - name: termCode
           in: path
-          description: Unique Pet ID
+          description: 6-digit unique code
           required: true
           type: string
+          pattern: '^\d{6}$'
       responses:
-        200:
+        '200':
           description: Successful response
           schema:
-            $ref: '#/definitions/PetResult'
-        404:
-          description: PetResource not found
+            $ref: '#/definitions/TermResult'
+        '404':
+          description: Term not found
           schema:
             $ref: '#/definitions/Errors'
-        500:
+        '500':
           description: Internal server error
           schema:
             $ref: '#/definitions/Errors'
@@ -83,114 +121,97 @@ parameters:
     type: string
     required: true
     description: '"Bearer [token]" where [token] is your OAuth2 access token'
-  pageNumber:
-    name: page[number]
-    in: query
-    type: integer
-    required: false
-    description: Page number of results
-    default: 1
-    minimum: 1
-  pageSize:
-    name: page[size]
-    in: query
-    type: integer
-    required: false
-    description: Number of results to return
-    default: 25
-    maximum: 500
-    minimum: 1
 definitions:
-  Meta:
-    properties:
-      totalResults:
-        type: integer
-        description: Total number of results
-        example: 10
-      totalPage:
-        type: integer
-        description: Total number of pages
-        example: 10
-      currentPageNumber:
-        type: integer
-        description: Page number of the returned results
-        example: 1
-      currentPageSize:
-        type: integer
-        description: Number of results per page
-        example: 25
   SelfLink:
     properties:
       self:
         type: string
         format: url
         description: Self-link of current resource
-  PaginationLinks:
-    properties:
-      first:
-        type: string
-        format: url
-        description: The first page of data
-      last:
-        type: string
-        format: url
-        description: The last page of data
-      prev:
-        type: string
-        format: url
-        description: The previous page of data
-      next:
-        type: string
-        format: url
-        description: The next page of data
-  PetResource:
+  TermResource:
     properties:
       id:
         type: string
-        description: A unique ID of pet
+        description: A 6-digit unique term code
+        pattern: '^\d{6}$'
       type:
         type: string
-        enum: [pet]
+        enum: [term]
       links:
         $ref: '#/definitions/SelfLink'
       attributes:
         properties:
-          name:
+          description:
             type: string
-            description: Name of pet
-            example: Hedwig
-          owner:
+            description: Human readable academic term description
+            example: Winter 2019
+          season:
             type: string
-            description: Name of owner
-            example: Harry Potter
-          species:
+            description: Season of the term
+            example: Winter
+            enum: [Fall, Winter, Summer, Spring]
+          calendarYear:
             type: string
-            description: Species of pet
-            example: Owl
-  PetResult:
+            description: A 4-digit calendar year
+            pattern: '^\d{4}$'
+            example: '2019'
+          academicYear:
+            type: string
+            description: Academic year associated with this term. This is a 4-digit code
+            pattern: '^\d{4}$'
+            example: '1819'
+          financialAidYear:
+            type: string
+            description: Aid year associated with this term. This is a 4-digit code. For example, for Summer 2018, the value would be 1819
+            pattern: '^\d{4}$'
+            example: '1819'
+          startDate:
+            type: string
+            description: First day of classes in this term. Format is in YYYY-MM-DD
+            format: date
+            example: 2019-01-07
+          endDate:
+            type: string
+            description: Last day of classes in this term. Format is in YYYY-MM-DD
+            format: date
+            example: 2019-03-22
+          housingStartDate:
+            type: string
+            description: First day for meal plan and housing assignments. Format is in YYYY-MM-DD
+            format: date
+            example: 2019-01-06
+          housingEndDate:
+            type: string
+            description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD
+            format: date
+            example: 2019-03-16
+          status:
+            type: array
+            description: The status of the term
+            items:
+              type: string
+              enum: [completed, current, open, not-open]
+            example: [current, open]
+  TermResult:
     properties:
       links:
         $ref: '#/definitions/SelfLink'
       data:
-        $ref: '#/definitions/PetResource'
-  PetsResult:
+        $ref: '#/definitions/TermResource'
+  TermsResult:
     properties:
       links:
-        allOf:
-          - $ref: '#/definitions/SelfLink'
-          - $ref: '#/definitions/PaginationLinks'
-      meta:
-        $ref: '#/definitions/Meta'
+        $ref: '#/definitions/SelfLink'
       data:
         type: array
         items:
-          $ref: '#/definitions/PetResource'
+          $ref: '#/definitions/TermResource'
   Error:
     properties:
       status:
         type: string
         description: HTTP status code
-        example: 123
+        example: '123'
       title:
         type: string
         description: A short, user readable summary of the error
@@ -198,7 +219,7 @@ definitions:
       code:
         type: string
         description: An application-specific error code
-        example: 1234
+        example: '1234'
       detail:
         type: string
         description: A long description of the error that may contain instance-specific details
