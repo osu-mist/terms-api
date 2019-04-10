@@ -2,7 +2,7 @@ const appRoot = require('app-root-path');
 const config = require('config');
 const _ = require('lodash');
 
-const { serializePets, serializePet } = require('../../serializers/pets-serializer');
+const { serializePets, serializePet } = require('../../serializers/terms-serializer');
 
 const { getConnection } = appRoot.require('api/v1/db/oracledb/connection');
 const contrib = appRoot.require('api/v1/db/oracledb/contrib/contrib');

@@ -1,19 +1,19 @@
 const appRoot = require('app-root-path');
 
-const petsDao = require('../../db/json/pets-dao-example');
+const termsDao = require('../../db/oracledb/terms-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
 const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
- * @summary Get pet by unique ID
+ * @summary Get term by term code
  */
 const get = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await petsDao.getPetById(id);
+    const result = await termsDao.getTermById(id);
     if (!result) {
-      errorBuilder(res, 404, 'A pet with the specified ID was not found.');
+      errorBuilder(res, 404, 'A term with the specified term code was not found.');
     } else {
       res.send(result);
     }
@@ -22,6 +22,6 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/pets/{id}'].get;
+get.apiDoc = paths['/terms/{id}'].get;
 
 module.exports = { get };
