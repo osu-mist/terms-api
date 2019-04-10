@@ -1,4 +1,7 @@
+const config = require('config');
 const fs = require('fs');
+
+const { dbPath } = config.get('dataSources').json;
 
 /**
  * @summary Validate a file path and throw an error if invalid
@@ -6,11 +9,19 @@ const fs = require('fs');
  * @throws Throws an error if the file path is not valid
  * @param {string} path
  */
-const validateFilePath = (path) => {
-  if (!fs.existsSync(path)) {
-    throw new Error(`Path: '${path}' is invalid`);
-  }
+const validateFilePath = async (path) => {
+  fs.access(path, (err) => {
+    if (err) {
+      throw new Error(`Path: '${path}' is invalid: ${err}`);
+    }
+  });
 };
+
+/**
+ * @summary Validate database file path
+ * @function
+ */
+const validateJsonDb = () => validateFilePath(dbPath);
 
 /**
  * @summary Read a JSON file and return the contents as an object
@@ -18,7 +29,7 @@ const validateFilePath = (path) => {
  * @param {string} filePath
  * @returns {Object}
  */
-const readJSONFile = (filePath) => {
+const readJsonFile = (filePath) => {
   if (fs.existsSync(filePath)) {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
   }
@@ -32,7 +43,7 @@ const readJSONFile = (filePath) => {
  * @param {Object} data
  * @param {Object} options
  */
-const writeJSONFile = (filePath, data, options = {}) => {
+const writeJsonFile = (filePath, data, options = {}) => {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), options);
 };
 
@@ -52,7 +63,8 @@ const deleteFile = (filePath) => {
 
 module.exports = {
   validateFilePath,
-  readJSONFile,
-  writeJSONFile,
+  validateJsonDb,
+  readJsonFile,
+  writeJsonFile,
   deleteFile,
 };

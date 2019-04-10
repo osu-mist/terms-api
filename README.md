@@ -135,10 +135,12 @@ $ npm test
 
 The following instructions show you how to get data from external endpoints for use in the API.
 
-1. Configure data source section in the `/config/default.yaml`. For example:
+1. Define `dataSources/http` section in the `/config/default.yaml` to be like:
 
     ```yaml
-    httpDataSource:
+    dataSources:
+      dataSources: ['http']
+      http:
         url: 'https://api.example.com'
     ```
 
@@ -151,7 +153,7 @@ The following instructions show you how to get data from external endpoints for 
 3. Make sure to require the correct path for the new DAO file at path handlers files:
 
     ```js
-    const petsDAO = require('../db/http/<resources>-dao');
+    const petsDao = require('../db/http/<resources>-dao');
     ```
 
 ## Getting data source from the Oracle Database
@@ -159,7 +161,6 @@ The following instructions show you how to get data from external endpoints for 
 The following instructions show you how to connect the API to an Oracle database.
 
 1. Install [Oracle Instant Client](http://www.oracle.com/technetwork/database/database-technologies/instant-client/overview/index.html) by following [this installation guide](https://oracle.github.io/odpi/doc/installation.html).
-
 
 2. Install [oracledb](https://www.npmjs.com/package/oracledb) via package management:
 
@@ -171,16 +172,18 @@ The following instructions show you how to connect the API to an Oracle database
     $ npm install oracledb
     ```
 
-3. Define `database` section in the `/config/default.yaml` to be like:
+3. Define `dataSources/oracledb` section in the `/config/default.yaml` to be like:
 
     ```yaml
-    database:
-      connectString: ${DB_URL}
-      user: ${DB_USER}
-      password: ${DB_PASSWD}
-      poolMin: 30
-      poolMax: 30
-      poolIncrement: 0
+    dataSources:
+      dataSources: ['oracledb']
+      oracledb:
+        connectString: 'DB_URL'
+        user: 'DB_USER'
+        password: 'DB_PASSWD'
+        poolMin: 4
+        poolMax: 4
+        poolIncrement: 0:
     ```
 
     **Options for database configuration**:
@@ -222,7 +225,57 @@ The following instructions show you how to connect the API to an Oracle database
 7. Make sure to require the correct path for the new DAO file at path handlers files:
 
     ```js
-    const petsDAO = require('../db/oracledb/<resources>-dao');
+    const petsDao = require('../db/oracledb/<resources>-dao');
+    ```
+
+## Getting data source from an AWS S3 bucket
+
+The following instructions show you how to get data from an AWS S3 bucket
+
+1. Install [aws-sdk](https://www.npmjs.com/package/aws-sdk) via package management:
+
+    ```shell
+    # Using yarn (recommended)
+    $ yarn add aws-sdk
+
+    # Using npm
+    $ npm install aws-sdk
+    ```
+
+2. Define the `dataSources` field in `config/default.yaml` to be like:
+
+    ```yaml
+    dataSources:
+      dataSources: ['awsS3']
+      awsS3:
+        bucket: BUCKET_NAME
+        apiVersion: API_VERSION
+        accessKeyId: ACCESS_KEY_ID
+        secretAccessKey: SECRET_ACCESS_KEY
+        region: REGION
+        endpoint: null
+        s3ForcePathStyle: false
+    ```
+
+    **Options for configuration**:
+
+    | Option | Description |
+    | ------ | ----------- |
+    | **bucket** | The name of the AWS S3 bucket to use |
+    | **apiVersion** | Version of the S3 API. Example: `'2006-03-01'` |
+    | **endpoint** | When using a local or proxy S3 instance, set this value to the host URL. Example: `http://localhost:9000` |
+    | **s3ForcePathStyle** | Set to `true` if using a local or proxy S3 instance |
+
+3. Copy [api/v1/db/awsS3/pets-dao-example.js](api/v1/db/awsS3/pets-dao-example.js) to `api/v1/db/awsS3/<resources>-dao.js` and modify as necessary:
+
+    ```shell
+    $ cp api/v1/db/awsS3/pets-dao-example.js api/v1/db/awsS3/<resources>-dao.js
+    ```
+
+4. Make sure to require the correct path for the new DAO file at path handlers files:
+
+    ```js
+    const petsDao = require('../db/awsS3/<resources>-dao');
     ```
 
 ## Docker
