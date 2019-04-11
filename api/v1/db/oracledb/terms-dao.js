@@ -1,25 +1,23 @@
 const appRoot = require('app-root-path');
-const config = require('config');
 const _ = require('lodash');
 
-const { serializePets, serializePet } = require('../../serializers/terms-serializer');
+const { serializeTerms, serializeTerm } = require('../../serializers/terms-serializer');
 
 const { getConnection } = appRoot.require('api/v1/db/oracledb/connection');
-const contrib = appRoot.require('api/v1/db/oracledb/contrib/contrib');
-
-const { endpointUri } = config.get('server');
+const { contrib } = appRoot.require('api/v1/db/oracledb/contrib/contrib');
 
 /**
- * @summary Return a list of pets
+ * @summary Return a list of terms
  * @function
- * @returns {Promise} Promise object represents a list of pets
+ * @param {string} query
+ * @returns {Promise} Promise object represents a list of terms
  */
-const getPets = () => new Promise(async (resolve, reject) => {
+const getTerms = query => new Promise(async (resolve, reject) => {
   const connection = await getConnection();
   try {
-    const { rawPets } = await connection.execute(contrib.getPets());
-    const serializedPets = serializePets(rawPets, endpointUri);
-    resolve(serializedPets);
+    const { rows } = await connection.execute(contrib.getTerms());
+    const serializedTerms = serializeTerms(rows, query);
+    resolve(serializedTerms);
   } catch (err) {
     reject(err);
   } finally {
@@ -28,24 +26,24 @@ const getPets = () => new Promise(async (resolve, reject) => {
 });
 
 /**
- * @summary Return a specific pet by unique ID
+ * @summary Return a specific term by unique term code
  * @function
- * @param {string} id Unique pet ID
+ * @param {string} termCode Unique term code
  * @returns {Promise} Promise object represents a specific pet
  */
-const getPetById = id => new Promise(async (resolve, reject) => {
+const getTermByTermCode = termCode => new Promise(async (resolve, reject) => {
   const connection = await getConnection();
   try {
-    const { rawPets } = await connection.execute(contrib.getPetById(id), id);
+    const { rows } = await connection.execute(contrib.getTerms(termCode), [termCode]);
 
-    if (_.isEmpty(rawPets)) {
+    if (_.isEmpty(rows)) {
       resolve(undefined);
-    } else if (rawPets.length > 1) {
+    } else if (rows.length > 1) {
       reject(new Error('Expect a single object but got multiple results.'));
     } else {
-      const [rawPet] = rawPets;
-      const serializedPet = serializePet(rawPet);
-      resolve(serializedPet);
+      const [rawTerm] = rows;
+      const serializedTerm = serializeTerm(rawTerm);
+      resolve(serializedTerm);
     }
   } catch (err) {
     reject(err);
@@ -54,4 +52,4 @@ const getPetById = id => new Promise(async (resolve, reject) => {
   }
 });
 
-module.exports = { getPets, getPetById };
+module.exports = { getTerms, getTermByTermCode };

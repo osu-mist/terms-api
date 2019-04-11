@@ -10,8 +10,8 @@ const { openapi: { paths } } = appRoot.require('utils/load-openapi');
  */
 const get = async (req, res) => {
   try {
-    const { id } = req.params;
-    const result = await termsDao.getTermById(id);
+    const { termCode } = req.params;
+    const result = await termsDao.getTermByTermCode(termCode);
     if (!result) {
       errorBuilder(res, 404, 'A term with the specified term code was not found.');
     } else {
@@ -22,6 +22,6 @@ const get = async (req, res) => {
   }
 };
 
-get.apiDoc = paths['/terms/{id}'].get;
+get.apiDoc = paths['/terms/{termCode}'].get;
 
 module.exports = { get };

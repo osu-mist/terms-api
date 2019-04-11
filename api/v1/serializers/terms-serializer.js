@@ -1,5 +1,4 @@
 const appRoot = require('app-root-path');
-const decamelize = require('decamelize');
 const JsonApiSerializer = require('jsonapi-serializer').Serializer;
 const _ = require('lodash');
 
@@ -8,30 +7,20 @@ const { openapi } = appRoot.require('utils/load-openapi');
 const { paginate } = appRoot.require('utils/paginator');
 const { apiBaseUrl, resourcePathLink, paramsLink } = appRoot.require('utils/uri-builder');
 
-const petResourceProp = openapi.definitions.PetResource.properties;
-const petResourceType = petResourceProp.type.enum[0];
-const petResourceKeys = _.keys(petResourceProp.attributes.properties);
-const petResourcePath = 'pets';
-const petResourceUrl = resourcePathLink(apiBaseUrl, petResourcePath);
+const termResourceProp = openapi.definitions.TermResource.properties;
+const termResourceType = termResourceProp.type.enum[0];
+const termResourceKeys = _.keys(termResourceProp.attributes.properties);
+const termResourcePath = 'term';
+const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
 
 /**
- * The column name getting from database is usually UPPER_CASE.
- * This block of code is to make the camelCase keys defined in openapi.yaml be
- * UPPER_CASE so that the serializer can correctly match the corresponding columns
- * from the raw data rows.
- */
-_.forEach(petResourceKeys, (key, index) => {
-  petResourceKeys[index] = decamelize(key).toUpperCase();
-});
-
-/**
- * @summary Serialize petResources to JSON API
+ * @summary A function to serialize raw terms data
  * @function
- * @param {[Object]} rawPets Raw data rows from data source
+ * @param {[Object]} rawTerms Raw terms data rows from data source
  * @param {Object} query Query parameters
- * @returns {Object} Serialized petResources object
+ * @returns {Object} Serialized term resource data
  */
-const serializePets = (rawPets, query) => {
+const serializeTerms = (rawTerms, query) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
@@ -40,45 +29,51 @@ const serializePets = (rawPets, query) => {
     number: query['page[number]'],
   };
 
-  const pagination = paginate(rawPets, pageQuery);
-  pagination.totalResults = rawPets.length;
-  rawPets = pagination.paginatedRows;
+  const pagination = paginate(rawTerms, pageQuery);
+  pagination.totalResults = rawTerms.length;
+  rawTerms = pagination.paginatedRows;
 
-  const topLevelSelfLink = paramsLink(petResourceUrl, query);
+  let topLevelSelfLink;
+  if (query && !_.isEmpty(query)) {
+    topLevelSelfLink = paramsLink(termResourceUrl, query);
+  } else {
+    topLevelSelfLink = termResourceUrl;
+  }
+
   const serializerArgs = {
-    identifierField: 'ID',
-    resourceKeys: petResourceKeys,
-    pagination,
-    resourcePath: petResourcePath,
+    identifierField: 'termCode',
+    resourceKeys: termResourceKeys,
+    resourcePath: 'term',
     topLevelSelfLink,
     enableDataLinks: true,
+    resourceType: termResourceType,
   };
 
   return new JsonApiSerializer(
-    petResourceType,
+    termResourceType,
     serializerOptions(serializerArgs),
-  ).serialize(rawPets);
+  ).serialize(rawTerms);
 };
 
 /**
- * @summary Serialize petResource to JSON API
+ * @summary A function to serialize raw term data
  * @function
- * @param {Object} rawPet Raw data row from data source
- * @returns {Object} Serialized petResource object
+ * @param {Object} rawTerm Raw term data rows from data source
+ * @returns {Object} Serialized term resource data
  */
-const serializePet = (rawPet) => {
-  const topLevelSelfLink = resourcePathLink(petResourceUrl, rawPet.ID);
+const serializeTerm = (rawTerm) => {
+  const topLevelSelfLink = resourcePathLink(termResourceUrl, rawTerm.termCode);
   const serializerArgs = {
-    identifierField: 'ID',
-    resourceKeys: petResourceKeys,
-    resourcePath: petResourcePath,
+    identifierField: 'termCode',
+    resourceKeys: termResourceKeys,
+    resourcePath: termResourcePath,
     topLevelSelfLink,
     enableDataLinks: true,
   };
 
   return new JsonApiSerializer(
-    petResourceType,
-    serializerOptions(serializerArgs, petResourcePath, topLevelSelfLink),
-  ).serialize(rawPet);
+    termResourceType,
+    serializerOptions(serializerArgs, termResourcePath, topLevelSelfLink),
+  ).serialize(rawTerm);
 };
-module.exports = { serializePets, serializePet };
+module.exports = { serializeTerms, serializeTerm };
