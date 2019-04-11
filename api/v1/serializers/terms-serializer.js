@@ -1,6 +1,7 @@
 const appRoot = require('app-root-path');
 const JsonApiSerializer = require('jsonapi-serializer').Serializer;
 const _ = require('lodash');
+const moment = require('moment-timezone');
 
 const { serializerOptions } = appRoot.require('utils/jsonapi');
 const { openapi } = appRoot.require('utils/load-openapi');
@@ -12,6 +13,31 @@ const termResourceType = termResourceProp.type.enum[0];
 const termResourceKeys = _.keys(termResourceProp.attributes.properties);
 const termResourcePath = 'term';
 const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
+
+/**
+ * @summary A function to generate term status
+ * @function
+ * @param {Object} rawTerm Raw term data rows from data source
+ * @param {string} currentTermCode current term code
+ */
+const generateTermStatus = (rawTerm, currentTermCode) => {
+  const today = Date.parse(moment().tz('PST8PDT').format('YYYY-MM-DD'));
+  const registrationStartDate = Date.parse(rawTerm.registrationStartDate);
+  const registrationEndDate = Date.parse(rawTerm.registrationEndDate);
+  const status = [];
+
+  if (rawTerm.termCode === currentTermCode) {
+    status.push('current');
+  }
+  if (registrationStartDate <= today && today <= registrationEndDate) {
+    status.push('open');
+  } else if (today > registrationEndDate) {
+    status.push('completed');
+  } else {
+    status.push('not-open');
+  }
+  rawTerm.status = status;
+};
 
 /**
  * @summary A function to serialize raw terms data
@@ -51,13 +77,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
   };
 
   _.forEach(rawTerms, (rawTerm) => {
-    const status = [];
-
-    if (rawTerm.termCode === currentTermCode) {
-      status.push('current');
-    }
-
-    rawTerm.status = status;
+    generateTermStatus(rawTerm, currentTermCode);
   });
 
   return new JsonApiSerializer(
@@ -73,7 +93,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
  * @param {string} currentTermCode current term code
  * @returns {Object} Serialized term resource data
  */
-const serializeTerm = (rawTerm) => {
+const serializeTerm = (rawTerm, currentTermCode) => {
   const topLevelSelfLink = resourcePathLink(termResourceUrl, rawTerm.termCode);
   const serializerArgs = {
     identifierField: 'termCode',
@@ -82,6 +102,8 @@ const serializeTerm = (rawTerm) => {
     topLevelSelfLink,
     enableDataLinks: true,
   };
+
+  generateTermStatus(rawTerm, currentTermCode);
 
   return new JsonApiSerializer(
     termResourceType,
