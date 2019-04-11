@@ -6,6 +6,22 @@ const { serializeTerms, serializeTerm } = require('../../serializers/terms-seria
 const { getConnection } = appRoot.require('api/v1/db/oracledb/connection');
 const { contrib } = appRoot.require('api/v1/db/oracledb/contrib/contrib');
 
+
+/**
+ * @summary Get current term code
+ * @function
+ * @returns {string} current term code
+ */
+const getCurrentTermCode = async () => {
+  const connection = await getConnection();
+  const { rows } = await connection.execute(contrib.getCurrentTerm());
+
+  if (_.isEmpty(rows) || rows.length > 1) {
+    return new Error('Expect a single object but got multiple results.');
+  }
+  return rows[0].termCode;
+};
+
 /**
  * @summary Return a list of terms
  * @function
@@ -16,7 +32,9 @@ const getTerms = query => new Promise(async (resolve, reject) => {
   const connection = await getConnection();
   try {
     const { rows } = await connection.execute(contrib.getTerms());
-    const serializedTerms = serializeTerms(rows, query);
+    const currentTermCode = await getCurrentTermCode();
+
+    const serializedTerms = serializeTerms(rows, currentTermCode, query);
     resolve(serializedTerms);
   } catch (err) {
     reject(err);
@@ -35,6 +53,7 @@ const getTermByTermCode = termCode => new Promise(async (resolve, reject) => {
   const connection = await getConnection();
   try {
     const { rows } = await connection.execute(contrib.getTerms(termCode), [termCode]);
+    const currentTermCode = await getCurrentTermCode();
 
     if (_.isEmpty(rows)) {
       resolve(undefined);
@@ -42,7 +61,7 @@ const getTermByTermCode = termCode => new Promise(async (resolve, reject) => {
       reject(new Error('Expect a single object but got multiple results.'));
     } else {
       const [rawTerm] = rows;
-      const serializedTerm = serializeTerm(rawTerm);
+      const serializedTerm = serializeTerm(rawTerm, currentTermCode);
       resolve(serializedTerm);
     }
   } catch (err) {

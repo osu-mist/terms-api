@@ -17,10 +17,11 @@ const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
  * @summary A function to serialize raw terms data
  * @function
  * @param {[Object]} rawTerms Raw terms data rows from data source
+ * @param {string} currentTermCode current term code
  * @param {Object} query Query parameters
  * @returns {Object} Serialized term resource data
  */
-const serializeTerms = (rawTerms, query) => {
+const serializeTerms = (rawTerms, currentTermCode, query) => {
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
@@ -49,6 +50,16 @@ const serializeTerms = (rawTerms, query) => {
     resourceType: termResourceType,
   };
 
+  _.forEach(rawTerms, (rawTerm) => {
+    const status = [];
+
+    if (rawTerm.termCode === currentTermCode) {
+      status.push('current');
+    }
+
+    rawTerm.status = status;
+  });
+
   return new JsonApiSerializer(
     termResourceType,
     serializerOptions(serializerArgs),
@@ -59,6 +70,7 @@ const serializeTerms = (rawTerms, query) => {
  * @summary A function to serialize raw term data
  * @function
  * @param {Object} rawTerm Raw term data rows from data source
+ * @param {string} currentTermCode current term code
  * @returns {Object} Serialized term resource data
  */
 const serializeTerm = (rawTerm) => {
