@@ -141,6 +141,24 @@ parameters:
     maximum: 500
     minimum: 1
 definitions:
+  Meta:
+    properties:
+      totalResults:
+        type: integer
+        description: Total number of results
+        example: 10
+      totalPage:
+        type: integer
+        description: Total number of pages
+        example: 10
+      currentPageNumber:
+        type: integer
+        description: Page number of the returned results
+        example: 1
+      currentPageSize:
+        type: integer
+        description: Number of results per page
+        example: 25
   SelfLink:
     properties:
       self:
@@ -219,6 +237,8 @@ definitions:
         $ref: '#/definitions/TermResource'
   TermsResult:
     properties:
+      meta:
+        $ref: '#/definitions/Meta'
       links:
         $ref: '#/definitions/SelfLink'
       data:

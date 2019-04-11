@@ -70,6 +70,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
   const serializerArgs = {
     identifierField: 'termCode',
     resourceKeys: termResourceKeys,
+    pagination,
     resourcePath: 'term',
     topLevelSelfLink,
     enableDataLinks: true,
