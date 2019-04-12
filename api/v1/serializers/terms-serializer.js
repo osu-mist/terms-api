@@ -172,4 +172,5 @@ const serializeTerm = (rawTerm, currentTermCode) => {
     serializerOptions(serializerArgs, termResourcePath, topLevelSelfLink),
   ).serialize(rawTerm);
 };
+
 module.exports = { serializeTerms, serializeTerm };
