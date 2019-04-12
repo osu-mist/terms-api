@@ -21,7 +21,7 @@ const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
  */
 const generateCalendarYerAndSeason = (rawTerm) => {
   const { description } = rawTerm;
-  const regex = /(Summer|Fall|Winter|Spring) (\d{4})/g;
+  const regex = /^(Summer|Fall|Winter|Spring) (\d{4})$/g;
   const match = regex.exec(description);
   rawTerm.season = match ? match[1] : null;
   rawTerm.calendarYear = match ? match[2] : null;
