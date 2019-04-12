@@ -48,11 +48,20 @@ const generateTermStatus = (rawTerm, currentTermCode) => {
  * @returns {Object} Serialized term resource data
  */
 const serializeTerms = (rawTerms, currentTermCode, query) => {
+  /**
+   * Calculate and generate fields for each term
+   */
   _.forEach(rawTerms, (rawTerm) => {
     generateTermStatus(rawTerm, currentTermCode);
   });
 
+  /**
+   * Filter result
+   */
+  /** Return true if actual value is not matched with the query value */
   const isNotExactlyMatch = (rawTerm, field) => query[field] && rawTerm[field] !== query[field];
+
+  /** Return true if date fall outside the range or the date ranges are null */
   const isNotInRange = (rawTerm, field) => {
     const date = Date.parse(query[field]);
     let startDate;
@@ -67,13 +76,18 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
         startDate = Date.parse(rawTerm.housingStartDate);
         endDate = Date.parse(rawTerm.housingEndDate);
         break;
+      case 'registrationDate':
+        startDate = Date.parse(rawTerm.registrationStartDate);
+        endDate = Date.parse(rawTerm.registrationEndDate);
+        break;
       default:
         Error('Unexpected range filter.');
     }
-    return startDate > date || endDate < date;
+    return query[field] && (startDate > date || endDate < date || !startDate || !endDate);
   };
+  /** Return true any of item from the actual list doesn't included in the query list */
   const isNotInEnums = (rawTerm, field) => (
-    !_.some(rawTerm[field], it => _.includes(query[field], it))
+    query[field] && !_.some(rawTerm[field], it => _.includes(query[field], it))
   );
 
   _.remove(rawTerms, rawTerm => isNotExactlyMatch(rawTerm, 'academicYear')
@@ -81,6 +95,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
                              || isNotExactlyMatch(rawTerm, 'financialAidYear')
                              || isNotInRange(rawTerm, 'date')
                              || isNotInRange(rawTerm, 'housingDate')
+                             || isNotInRange(rawTerm, 'registrationDate')
                              || isNotInEnums(rawTerm, 'status'));
 
   /**

@@ -62,9 +62,15 @@ paths:
           type: string
           format: date
         - in: query
+          name: registrationDate
+          description: Search term by registration date. For example, 2019-01-01
+          required: false
+          type: string
+          format: date
+        - in: query
           name: status
           description: |
-            Filter terms by status:
+            Filter terms which contain at least one of the provided status:
             - `completed` - term has been completed
             - `current` - current term
             - `open` - terms that a student can register for
@@ -222,6 +228,16 @@ definitions:
             description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD
             format: date
             example: 2019-03-16
+          registrationStartDate:
+            type: string
+            description: First day for general registration. Format is in YYYY-MM-DD
+            format: date
+            example: 2018-10-19
+          registrationEndDate:
+            type: string
+            description: Last day for general registration. Format is in YYYY-MM-DD
+            format: date
+            example: 2019-03-15
           status:
             type: array
             description: The status of the term
