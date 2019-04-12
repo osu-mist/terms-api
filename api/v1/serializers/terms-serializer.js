@@ -70,7 +70,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
   });
 
   /**
-   * Filter result
+   * Filter result if filter parameters are provided
    */
   /** Return true if actual value is not matched with the query value */
   const isNotExactlyMatch = (rawTerm, field) => query[field] && rawTerm[field] !== query[field];
@@ -99,6 +99,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
     }
     return query[field] && (startDate > date || endDate < date || !startDate || !endDate);
   };
+
   /** Return true any of item from the actual list doesn't included in the query list */
   const isNotInEnums = (rawTerm, field) => (
     query[field] && !_.some(rawTerm[field], it => _.includes(query[field], it))

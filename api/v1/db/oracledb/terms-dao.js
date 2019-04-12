@@ -46,7 +46,7 @@ const getTerms = query => new Promise(async (resolve, reject) => {
  * @summary Return a specific term by unique term code
  * @function
  * @param {string} termCode Unique term code
- * @returns {Promise} Promise object represents a specific pet
+ * @returns {Promise} Promise object represents a specific term
  */
 const getTermByTermCode = termCode => new Promise(async (resolve, reject) => {
   const connection = await getConnection();
