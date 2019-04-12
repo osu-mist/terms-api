@@ -48,6 +48,41 @@ const generateTermStatus = (rawTerm, currentTermCode) => {
  * @returns {Object} Serialized term resource data
  */
 const serializeTerms = (rawTerms, currentTermCode, query) => {
+  _.forEach(rawTerms, (rawTerm) => {
+    generateTermStatus(rawTerm, currentTermCode);
+  });
+
+  const isNotExactlyMatch = (rawTerm, field) => query[field] && rawTerm[field] !== query[field];
+  const isNotInRange = (rawTerm, field) => {
+    const date = Date.parse(query[field]);
+    let startDate;
+    let endDate;
+
+    switch (field) {
+      case 'date':
+        startDate = Date.parse(rawTerm.startDate);
+        endDate = Date.parse(rawTerm.endDate);
+        break;
+      case 'housingDate':
+        startDate = Date.parse(rawTerm.housingStartDate);
+        endDate = Date.parse(rawTerm.housingEndDate);
+        break;
+      default:
+        Error('Unexpected range filter.');
+    }
+    return startDate > date || endDate < date;
+  };
+  const isNotInEnums = (rawTerm, field) => (
+    !_.some(rawTerm[field], it => _.includes(query[field], it))
+  );
+
+  _.remove(rawTerms, rawTerm => isNotExactlyMatch(rawTerm, 'academicYear')
+                             || isNotExactlyMatch(rawTerm, 'calendarYear')
+                             || isNotExactlyMatch(rawTerm, 'financialAidYear')
+                             || isNotInRange(rawTerm, 'date')
+                             || isNotInRange(rawTerm, 'housingDate')
+                             || isNotInEnums(rawTerm, 'status'));
+
   /**
    * Add pagination links and meta information to options if pagination is enabled
    */
@@ -76,10 +111,6 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
     enableDataLinks: true,
     resourceType: termResourceType,
   };
-
-  _.forEach(rawTerms, (rawTerm) => {
-    generateTermStatus(rawTerm, currentTermCode);
-  });
 
   return new JsonApiSerializer(
     termResourceType,
