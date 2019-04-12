@@ -15,6 +15,19 @@ const termResourcePath = 'term';
 const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
 
 /**
+ * @summary A function to generate calendar year and season
+ * @function
+ * @param {Object} rawTerm Raw term data rows from data source
+ */
+const generateCalendarYerAndSeason = (rawTerm) => {
+  const { description } = rawTerm;
+  const regex = /(Summer|Fall|Winter|Spring) (\d{4})/g;
+  const match = regex.exec(description);
+  rawTerm.season = match ? match[1] : null;
+  rawTerm.calendarYear = match ? match[2] : null;
+};
+
+/**
  * @summary A function to generate term status
  * @function
  * @param {Object} rawTerm Raw term data rows from data source
@@ -52,6 +65,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
    * Calculate and generate fields for each term
    */
   _.forEach(rawTerms, (rawTerm) => {
+    generateCalendarYerAndSeason(rawTerm);
     generateTermStatus(rawTerm, currentTermCode);
   });
 
@@ -150,6 +164,7 @@ const serializeTerm = (rawTerm, currentTermCode) => {
     enableDataLinks: true,
   };
 
+  generateCalendarYerAndSeason(rawTerm);
   generateTermStatus(rawTerm, currentTermCode);
 
   return new JsonApiSerializer(
