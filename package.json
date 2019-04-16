@@ -1,7 +1,7 @@
 {
-  "name": "express-api-skeleton",
+  "name": "terms-api",
   "version": "1.0.0",
-  "description": "Skeleton for Express APIs.",
+  "description": "Terms API",
   "main": "app.js",
   "scripts": {
     "start": "./node_modules/.bin/gulp run",
