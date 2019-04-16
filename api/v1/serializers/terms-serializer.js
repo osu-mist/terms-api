@@ -19,7 +19,7 @@ const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
  * @function
  * @param {Object} rawTerm Raw term data rows from data source
  */
-const generateCalendarYerAndSeason = (rawTerm) => {
+const generateCalendarYearAndSeason = (rawTerm) => {
   const { description } = rawTerm;
   const regex = /^(Summer|Fall|Winter|Spring) (\d{4})$/g;
   const match = regex.exec(description);
@@ -55,7 +55,7 @@ const generateTermStatus = (rawTerm, currentTermCode) => {
 /**
  * @summary A function to serialize raw terms data
  * @function
- * @param {[Object]} rawTerms Raw terms data rows from data source
+ * @param {Object[]} rawTerms Raw terms data rows from data source
  * @param {string} currentTermCode current term code
  * @param {Object} query Query parameters
  * @returns {Object} Serialized term resource data
@@ -65,7 +65,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
    * Calculate and generate fields for each term
    */
   _.forEach(rawTerms, (rawTerm) => {
-    generateCalendarYerAndSeason(rawTerm);
+    generateCalendarYearAndSeason(rawTerm);
     generateTermStatus(rawTerm, currentTermCode);
   });
 
@@ -95,7 +95,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
         endDate = Date.parse(rawTerm.registrationEndDate);
         break;
       default:
-        Error('Unexpected range filter.');
+        throw new Error('Unexpected range filter.');
     }
     return query[field] && (startDate > date || endDate < date || !startDate || !endDate);
   };
@@ -165,7 +165,7 @@ const serializeTerm = (rawTerm, currentTermCode) => {
     enableDataLinks: true,
   };
 
-  generateCalendarYerAndSeason(rawTerm);
+  generateCalendarYearAndSeason(rawTerm);
   generateTermStatus(rawTerm, currentTermCode);
 
   return new JsonApiSerializer(
