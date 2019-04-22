@@ -30,25 +30,6 @@ describe('Test terms-dao', () => {
     });
   });
 
-  it('getTerms should be fulfilled', () => {
-    const expectResult = {};
-
-    sinon.stub(contrib, 'getTerms').returns('multiResults');
-    sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
-    sinon.stub(termsSerializer, 'serializeTerms').returns(expectResult);
-    const fulfilledResult = termsDao.getTerms();
-
-    return fulfilledResult.should
-      .eventually.be.fulfilled
-      .and.deep.equal(expectResult);
-  });
-  it('getTerms should be rejected if an error was thrown', () => {
-    sinon.stub(contrib, 'getTerms').throws(new Error('Throw fake error.'));
-    const rejectedResult = termsDao.getTerms();
-
-    return rejectedResult.should
-      .eventually.be.rejectedWith(Error);
-  });
   it('getCurrentTermCode should be fulfilled', async () => {
     const connection = await conn.getConnection();
 
@@ -59,7 +40,7 @@ describe('Test terms-dao', () => {
       .eventually.be.fulfilled
       .and.deep.equal('fakeTermCode');
   });
-  it('getCurrentTermCode should be rejected if an error was thrown', async () => {
+  it('getCurrentTermCode should be rejected', async () => {
     const connection = await conn.getConnection();
     const rejectedCases = [
       { testCase: 'emptyResult', error: 'Expect a single object but got empty results.' },
@@ -75,9 +56,83 @@ describe('Test terms-dao', () => {
       rejectedPromises.push(result.should
         .eventually.be.rejectedWith(Error, error));
 
-      sinon.restore();
+      contrib.getCurrentTerm.restore();
     });
     return Promise.all(rejectedPromises);
+  });
+
+  it('getTerms should be fulfilled', () => {
+    const expectResult = {};
+
+    sinon.stub(contrib, 'getTerms').returns('multiResults');
+    sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
+    sinon.stub(termsSerializer, 'serializeTerms').returns(expectResult);
+    const fulfilledResult = termsDao.getTerms();
+
+    return fulfilledResult.should
+      .eventually.be.fulfilled
+      .and.deep.equal(expectResult);
+  });
+  it('getTerms should be rejected', () => {
+    sinon.stub(contrib, 'getTerms').throws(new Error('Throw fake error.'));
+    const rejectedResult = termsDao.getTerms();
+
+    return rejectedResult.should
+      .eventually.be.rejectedWith(Error);
+  });
+
+  it('getTermByTermCode should be fulfilled', () => {
+    sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
+    const getTermsStub = sinon.stub(contrib, 'getTerms');
+
+    const expectedSerializedSingleTerm = {};
+    const fulfilledCases = [
+      // this test case won't call termsSerializer
+      { testCase: 'emptyResult', expected: undefined },
+      // this test case will require a call of termsSerializer
+      { testCase: 'singleResult', expected: expectedSerializedSingleTerm },
+    ];
+    sinon.stub(termsSerializer, 'serializeTerm').onCall(0).returns(expectedSerializedSingleTerm);
+
+    const fulfilledPromises = [];
+    _.forEach(fulfilledCases, ({ testCase, expected }, index) => {
+      getTermsStub.onCall(index).returns(testCase);
+
+      const result = termsDao.getTermByTermCode();
+      fulfilledPromises.push(result.should
+        .eventually.be.fulfilled
+        .and.deep.equal(expected));
+    });
+    return Promise.all(fulfilledPromises);
+  });
+  // it('getTermByTermCode should be rejected', () => {
+  //   sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
+  //   const rejectedCases = [
+  //     { testCase: 'emptyResult', error: 'Expect a single object but got empty results.' },
+  //     { testCase: 'multiResults', error: 'Expect a single object but got multiple results.' },
+  //   ];
+
+  //   const rejectedPromises = [];
+  //   _.each(rejectedCases, ({ testCase, error }) => {
+  //     sinon.stub(contrib, 'getTerms').returns(testCase);
+
+  //     const result = termsDao.getTermByTermCode();
+
+  //     // rejectedPromises.push(result.should
+  //     //   .eventually.be.rejectedWith(Error, error));
+
+  //     contrib.getTerms.restore();
+  //   });
+  //   return Promise.all(rejectedPromises);
+  // });
+  it('getTermByTermCode should be rejected', () => {
+    sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
+    sinon.stub(contrib, 'getTerms').returns('multiResults');
+
+    const result = termsDao.getTermByTermCode();
+
+    return result.should
+      .eventually.be.rejectedWith(Error, 'Expect a single object but got multiple results.');
   });
 
   afterEach(() => sinon.restore());
