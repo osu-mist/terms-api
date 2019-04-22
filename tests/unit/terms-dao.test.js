@@ -29,6 +29,7 @@ describe('Test terms-dao', () => {
       close: () => null,
     });
   });
+  afterEach(() => sinon.restore());
 
   it('getCurrentTermCode should be fulfilled', async () => {
     const connection = await conn.getConnection();
@@ -42,6 +43,7 @@ describe('Test terms-dao', () => {
   });
   it('getCurrentTermCode should be rejected', async () => {
     const connection = await conn.getConnection();
+    const getCurrentTermStub = sinon.stub(contrib, 'getCurrentTerm');
     const rejectedCases = [
       { testCase: 'emptyResult', error: 'Expect a single object but got empty results.' },
       { testCase: 'singleResult', error: 'Result doesn\'t contain term code' },
@@ -49,18 +51,15 @@ describe('Test terms-dao', () => {
     ];
 
     const rejectedPromises = [];
-    _.each(rejectedCases, ({ testCase, error }) => {
-      sinon.stub(contrib, 'getCurrentTerm').returns(testCase);
-      const result = termsDao.getCurrentTermCode(connection);
+    _.each(rejectedCases, ({ testCase, error }, index) => {
+      getCurrentTermStub.onCall(index).returns(testCase);
 
+      const result = termsDao.getCurrentTermCode(connection);
       rejectedPromises.push(result.should
         .eventually.be.rejectedWith(Error, error));
-
-      contrib.getCurrentTerm.restore();
     });
     return Promise.all(rejectedPromises);
   });
-
   it('getTerms should be fulfilled', () => {
     const expectResult = {};
 
@@ -80,7 +79,6 @@ describe('Test terms-dao', () => {
     return rejectedResult.should
       .eventually.be.rejectedWith(Error);
   });
-
   it('getTermByTermCode should be fulfilled', () => {
     sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
     const getTermsStub = sinon.stub(contrib, 'getTerms');
@@ -105,26 +103,6 @@ describe('Test terms-dao', () => {
     });
     return Promise.all(fulfilledPromises);
   });
-  // it('getTermByTermCode should be rejected', () => {
-  //   sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
-  //   const rejectedCases = [
-  //     { testCase: 'emptyResult', error: 'Expect a single object but got empty results.' },
-  //     { testCase: 'multiResults', error: 'Expect a single object but got multiple results.' },
-  //   ];
-
-  //   const rejectedPromises = [];
-  //   _.each(rejectedCases, ({ testCase, error }) => {
-  //     sinon.stub(contrib, 'getTerms').returns(testCase);
-
-  //     const result = termsDao.getTermByTermCode();
-
-  //     // rejectedPromises.push(result.should
-  //     //   .eventually.be.rejectedWith(Error, error));
-
-  //     contrib.getTerms.restore();
-  //   });
-  //   return Promise.all(rejectedPromises);
-  // });
   it('getTermByTermCode should be rejected', () => {
     sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
     sinon.stub(contrib, 'getTerms').returns('multiResults');
@@ -134,6 +112,4 @@ describe('Test terms-dao', () => {
     return result.should
       .eventually.be.rejectedWith(Error, 'Expect a single object but got multiple results.');
   });
-
-  afterEach(() => sinon.restore());
 });
