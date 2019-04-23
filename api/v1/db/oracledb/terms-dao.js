@@ -20,7 +20,7 @@ const getCurrentTermCode = async (connection) => {
   } else if (rows.length > 1) {
     throw new Error('Expect a single object but got multiple results.');
   } else if (rows[0].termCode === undefined) {
-    throw new Error('Result doesn\'t contain term code');
+    throw new Error('Result doesn\'t contain term code.');
   }
   return rows[0].termCode;
 };
