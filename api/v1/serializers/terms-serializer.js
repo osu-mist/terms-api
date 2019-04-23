@@ -176,6 +176,7 @@ const serializeTerm = (rawTerm, currentTermCode) => {
 
 module.exports = {
   generateCalendarYearAndSeason,
+  generateTermStatus,
   serializeTerms,
   serializeTerm,
 };
