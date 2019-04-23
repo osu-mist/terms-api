@@ -46,7 +46,7 @@ describe('Test terms-dao', () => {
     const getCurrentTermStub = sinon.stub(contrib, 'getCurrentTerm');
     const rejectedCases = [
       { testCase: 'emptyResult', error: 'Expect a single object but got empty results.' },
-      { testCase: 'singleResult', error: 'Result doesn\'t contain term code' },
+      { testCase: 'singleResult', error: 'Result doesn\'t contain term code.' },
       { testCase: 'multiResults', error: 'Expect a single object but got multiple results.' },
     ];
 
