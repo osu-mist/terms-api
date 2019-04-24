@@ -1,6 +1,6 @@
-# Express API Skeleton ![version](https://img.shields.io/badge/version-v1-blue.svg) [![openapi](https://img.shields.io/badge/openapi-2.0-green.svg)](./openapi.yaml) ![node](https://img.shields.io/badge/node-10.13-brightgreen.svg)
+# Terms API ![version](https://img.shields.io/badge/version-v1-blue.svg) [![openapi](https://img.shields.io/badge/openapi-2.0-green.svg)](./openapi.yaml) ![node](https://img.shields.io/badge/node-10.13-brightgreen.svg)
 
-Skeleton for Express APIs. API definition is contained in the [OpenAPI specification](./openapi.yaml).
+The API provides terms data. API definition is contained in the [OpenAPI specification](./openapi.yaml).
 
 ## Getting Started
 
@@ -88,27 +88,6 @@ $ npm test
 
 ## Base project off the skeleton
 
-### Base a new project off the skeleton
-
-1. Clone the skeleton:
-
-    ```shell
-    $ git clone --origin skeleton git@github.com:osu-mist/express-api-skeleton.git <my-api>
-    ```
-
-2. Rename project by modifying [package.json](./package.json).
-
-3. We use [express-openapi](https://www.npmjs.com/package/express-openapi) to generate API by inheriting openapi.yaml. Create path handlers and put them into corresponding directories. For example:
-
-    * The path handler for `/api/v1/pets` should go to [api/v1/paths/pet.js](api/v1/paths/pet.js)
-    * The path handler for `/api/v1/pets/{id}` should go to [api/v1/paths/pet/{id}.js](api/v1/paths/pet/{id}.js)
-
-4. Copy [api/v1/serializers/pets-serializers.js](api/v1/serializers/pets-serializers.js) to `api/v1/serializers/<resources>-serializers.js` and modify as necessary:
-
-    ```shell
-    $ cp api/v1/serializers/pets-serializers.js api/v1/serializers/<resources>-serializers.js
-    ```
-
 ### Base an existing project off / Incorporate updates from the skeleton
 
 1. Add the skeleton as a remote:
@@ -131,35 +110,11 @@ $ npm test
     $ git commit -v
     ```
 
-## Getting data source from HTTP endpoints
-
-The following instructions show you how to get data from external endpoints for use in the API.
-
-1. Configure data source section in the `/config/default.yaml`. For example:
-
-    ```yaml
-    httpDataSource:
-        url: 'https://api.example.com'
-    ```
-
-2. Copy [api/v1/db/http/pets-dao-example.js](api/v1/db/http/pets-dao-example.js) to `api/v1/db/http/<resources>-dao.js` and modify as necessary:
-
-    ```shell
-    $ cp api/v1/db/http/pets-dao-example.js api/v1/db/http/<resources>-dao.js
-    ```
-
-3. Make sure to require the correct path for the new DAO file at path handlers files:
-
-    ```js
-    const petsDAO = require('../db/http/<resources>-dao');
-    ```
-
 ## Getting data source from the Oracle Database
 
 The following instructions show you how to connect the API to an Oracle database.
 
 1. Install [Oracle Instant Client](http://www.oracle.com/technetwork/database/database-technologies/instant-client/overview/index.html) by following [this installation guide](https://oracle.github.io/odpi/doc/installation.html).
-
 
 2. Install [oracledb](https://www.npmjs.com/package/oracledb) via package management:
 
@@ -171,16 +126,18 @@ The following instructions show you how to connect the API to an Oracle database
     $ npm install oracledb
     ```
 
-3. Define `database` section in the `/config/default.yaml` to be like:
+3. Define `dataSources/oracledb` section in the `/config/default.yaml` to be like:
 
     ```yaml
-    database:
-      connectString: ${DB_URL}
-      user: ${DB_USER}
-      password: ${DB_PASSWD}
-      poolMin: 30
-      poolMax: 30
-      poolIncrement: 0
+    dataSources:
+      dataSources: ['oracledb']
+      oracledb:
+        connectString: 'DB_URL'
+        user: 'DB_USER'
+        password: 'DB_PASSWD'
+        poolMin: 4
+        poolMax: 4
+        poolIncrement: 0:
     ```
 
     **Options for database configuration**:
@@ -222,7 +179,7 @@ The following instructions show you how to connect the API to an Oracle database
 7. Make sure to require the correct path for the new DAO file at path handlers files:
 
     ```js
-    const petsDAO = require('../db/oracledb/<resources>-dao');
+    const petsDao = require('../db/oracledb/<resources>-dao');
     ```
 
 ## Docker
@@ -233,8 +190,8 @@ The following instructions show you how to connect the API to an Oracle database
 
     ```Dockerfile
     # Copy folder to workspace
-    WORKDIR /usr/src/<my-api>
-    COPY . /usr/src/<my-api>
+    WORKDIR /usr/src/terms-api
+    COPY . /usr/src/terms-api
     ```
 
 2. If the API requires [node-oracledb](https://oracle.github.io/node-oracledb/) to connect to an Oracle database, download an [Oracle Instant Client 12.2 Basic Light zip (64 bits)](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html) and place into `./bin` folder. In addition, uncomment [the following code](Dockerfile#L11-L18) from the Dockerfile:
@@ -254,7 +211,7 @@ The following instructions show you how to connect the API to an Oracle database
 3. Build the docker image:
 
     ```shell
-    $ docker build -t <my-api> .
+    $ docker build -t terms-api .
     ```
 
 4. Run the app in a container:
@@ -263,9 +220,9 @@ The following instructions show you how to connect the API to an Oracle database
     $ docker run -d \
                  -p 8080:8080 \
                  -p 8081:8081 \
-                 -v path/to/keytools/:/usr/src/<my-api>/keytools:ro \
-                 -v "$PWD"/config:/usr/src/<my-api>/config:ro \
-                 -v "$PWD"/logs:/usr/src/<my-api>/logs \
-                 --name <my-api> \
-                 <my-api>
+                 -v path/to/keytools/:/usr/src/terms-api/keytools:ro \
+                 -v "$PWD"/config:/usr/src/terms-api/config:ro \
+                 -v "$PWD"/logs:/usr/src/terms-api/logs \
+                 --name terms-api \
+                 terms-api
     ```

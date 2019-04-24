@@ -1,7 +1,7 @@
 {
-  "name": "express-api-skeleton",
+  "name": "terms-api",
   "version": "1.0.0",
-  "description": "Skeleton for Express APIs.",
+  "description": "Terms API",
   "main": "app.js",
   "scripts": {
     "start": "./node_modules/.bin/gulp run",
@@ -13,22 +13,20 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/osu-mist/express-api-skeleton.git"
+    "url": "git+https://github.com/osu-mist/terms-api.git"
   },
   "author": "osu-mist",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/osu-mist/express-api-skeleton/issues"
+    "url": "https://github.com/osu-mist/terms-api/issues"
   },
-  "homepage": "https://github.com/osu-mist/express-api-skeleton#readme",
+  "homepage": "https://github.com/osu-mist/terms-api#readme",
   "dependencies": {
     "app-root-path": "^2.1.0",
     "body-parser": "^1.18.3",
-    "capitalize": "^2.0.0",
     "compose-middleware": "^5.0.1",
     "config": "^2.0.1",
     "deasync": "^0.1.14",
-    "decamelize": "^2.0.0",
     "decode-uri-component": "^0.2.0",
     "express": "^4.16.3",
     "express-basic-auth": "^1.1.5",
@@ -38,6 +36,8 @@
     "jsonapi-serializer": "^3.5.6",
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
+    "moment-timezone": "^0.5.23",
+    "oracledb": "^3.1.2",
     "query-string": "^6.2.0",
     "simple-git": "^1.96.0",
     "swagger-parser": "^6.0.3",

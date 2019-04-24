@@ -29,6 +29,8 @@ paths:
       operationId: getTerms
       parameters:
         - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/pageNumber'
+        - $ref: '#/parameters/pageSize'
         - in: query
           name: academicYear
           description: Search terms by academic year. For example, 1819
@@ -60,9 +62,15 @@ paths:
           type: string
           format: date
         - in: query
+          name: registrationDate
+          description: Search term by registration date. For example, 2019-01-01
+          required: false
+          type: string
+          format: date
+        - in: query
           name: status
           description: |
-            Filter terms by status:
+            Filter terms which contain at least one of the provided status:
             - `completed` - term has been completed
             - `current` - current term
             - `open` - terms that a student can register for
@@ -121,7 +129,42 @@ parameters:
     type: string
     required: true
     description: '"Bearer [token]" where [token] is your OAuth2 access token'
+  pageNumber:
+    name: page[number]
+    in: query
+    type: integer
+    required: false
+    description: Page number of results
+    default: 1
+    minimum: 1
+  pageSize:
+    name: page[size]
+    in: query
+    type: integer
+    required: false
+    description: Number of results to return
+    default: 25
+    maximum: 500
+    minimum: 1
 definitions:
+  Meta:
+    properties:
+      totalResults:
+        type: integer
+        description: Total number of results
+        example: 10
+      totalPage:
+        type: integer
+        description: Total number of pages
+        example: 10
+      currentPageNumber:
+        type: integer
+        description: Page number of the returned results
+        example: 1
+      currentPageSize:
+        type: integer
+        description: Number of results per page
+        example: 25
   SelfLink:
     properties:
       self:
@@ -185,6 +228,16 @@ definitions:
             description: Last day for meal plan and housing assignments. Format is in YYYY-MM-DD
             format: date
             example: 2019-03-16
+          registrationStartDate:
+            type: string
+            description: First day for general registration. Format is in YYYY-MM-DD
+            format: date
+            example: 2018-10-19
+          registrationEndDate:
+            type: string
+            description: Last day for general registration. Format is in YYYY-MM-DD
+            format: date
+            example: 2019-03-15
           status:
             type: array
             description: The status of the term
@@ -200,6 +253,8 @@ definitions:
         $ref: '#/definitions/TermResource'
   TermsResult:
     properties:
+      meta:
+        $ref: '#/definitions/Meta'
       links:
         $ref: '#/definitions/SelfLink'
       data:
