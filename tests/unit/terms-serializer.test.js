@@ -1,14 +1,15 @@
 const appRoot = require('app-root-path');
 const chai = require('chai');
 const assertArrays = require('chai-arrays');
-const chaiDatetime = require('chai-datetime');
 const chaiAsPromised = require('chai-as-promised');
+const chaiDatetime = require('chai-datetime');
 const _ = require('lodash');
 const moment = require('moment-timezone');
 const sinon = require('sinon');
 
 const termsSerializer = appRoot.require('api/v1/serializers/terms-serializer');
 const testData = appRoot.require('tests/unit/test-data');
+const { openapi } = appRoot.require('utils/load-openapi');
 
 chai.should();
 chai.use(assertArrays);
@@ -18,17 +19,46 @@ const { expect } = chai;
 
 describe('Test terms-serializer', () => {
   const { defaultPaginationQuery, fakeCurrentTermCode } = testData;
-  // const termsSchema = {
-  //   links: {
-  //     self: `${fakeBaseUrl}/${resourceType}`,
-  //   },
-  //   data: {
-  //     id: fakeId,
-  //     type: resourceType,
-  //     links: { self: null },
-  //   },
-  // };
   let clock;
+
+  /**
+   * @summary Helper function to get definition from openapi specification
+   * @function
+   * @param {string} definition the name of definition
+   * @param {Object} nestedOption nested option
+   * @param {boolean} nestedOption.dataItem a boolean which represents whether it's a data item
+   * @param {string} nestedOption.dataField data field name
+   * @returns {Object}
+   */
+  const getDefinitionProps = (definition, nestedOption) => {
+    let result = openapi.definitions[definition].properties;
+    if (nestedOption) {
+      const { dataItem, dataField } = nestedOption;
+      if (dataItem) {
+        result = result.data.items.properties.attributes.properties;
+      } else if (dataField) {
+        result = result.data.properties.attributes.properties[dataField].items.properties;
+      }
+    }
+    return result;
+  };
+
+  /**
+   * @summary Helper function to check the schema of term resource
+   * @function
+   * @param {Object} resource
+   */
+  const checkTermSchema = (resource) => {
+    const {
+      type, links, id, attributes,
+    } = resource;
+    const termProps = getDefinitionProps('TermResource');
+    expect(resource).to.contain.keys(_.keys(termProps));
+    expect(type).to.equal('term');
+    expect(links).to.contain.keys(_.keys(getDefinitionProps('SelfLink')));
+    expect(id).to.match(new RegExp(termProps.id.pattern));
+    expect(attributes).to.contain.keys(_.keys(termProps.attributes.properties));
+  };
 
   before(() => {
     clock = sinon.useFakeTimers(moment.tz('2019-03-01', 'PST8PDT').toDate());
@@ -134,5 +164,19 @@ describe('Test terms-serializer', () => {
         expect(attributes[field]).to.be.containingAnyOf(expectedValue);
       });
     });
+
+    // check resource schema
+    const clonedFakeTermsTestCases = _.clone(fakeTermsTestCases);
+    const serializedTerms = serializeTerms(
+      clonedFakeTermsTestCases, fakeCurrentTermCode, defaultPaginationQuery,
+    );
+    expect(serializedTerms).to.have.keys('links', 'meta', 'data');
+
+    const { links, meta, data } = serializedTerms;
+    expect(links).to.contain.keys(_.keys(getDefinitionProps('PaginationLinks')));
+    expect(meta).to.contain.keys(_.keys(getDefinitionProps('Meta')));
+    expect(data).to.be.an('array');
+
+    _.forEach(serializedTerms.data, termResource => checkTermSchema(termResource));
   });
 });

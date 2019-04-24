@@ -1,3 +1,4 @@
+
 const defaultPaginationQuery = { 'page[number]': 1, 'page[size]': 25 };
 const fakeCurrentTermCode = '201902';
 const fakeTermsTestCases = [
