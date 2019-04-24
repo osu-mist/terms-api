@@ -170,7 +170,7 @@ describe('Test terms-serializer', () => {
     const serializedTerms = serializeTerms(
       clonedFakeTermsTestCases, fakeCurrentTermCode, defaultPaginationQuery,
     );
-    expect(serializedTerms).to.have.keys('links', 'meta', 'data');
+    expect(serializedTerms).to.have.keys(getDefinitionProps('TermsResult'));
 
     const { links, meta, data } = serializedTerms;
     expect(links).to.contain.keys(_.keys(getDefinitionProps('PaginationLinks')));
@@ -178,5 +178,20 @@ describe('Test terms-serializer', () => {
     expect(data).to.be.an('array');
 
     _.forEach(serializedTerms.data, termResource => checkTermSchema(termResource));
+  });
+  it('test serializeTerms', () => {
+    const { serializeTerm } = termsSerializer;
+    const { fakeTermsTestCases } = testData;
+
+    _.forEach(fakeTermsTestCases, (fakeTermsTestCase) => {
+      const serializedTerm = serializeTerm(fakeTermsTestCase);
+      expect(serializedTerm).to.have.keys(getDefinitionProps('TermResult'));
+
+      const { links, data } = serializedTerm;
+      expect(links).to.contain.keys(_.keys(getDefinitionProps('SelfLink')));
+      expect(data).to.be.an('object');
+
+      checkTermSchema(data);
+    });
   });
 });
