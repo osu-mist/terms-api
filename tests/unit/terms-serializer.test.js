@@ -65,6 +65,15 @@ describe('Test terms-serializer', () => {
       inEnumsQueryTestCases,
     } = testData;
 
+    /**
+     * @summary Helper function to call serializeTerms with test queries
+     * @function
+     * @param {Object} testQuery
+     * @returns {Object} serializedData - object of serialized data and test case
+     * @returns {Object} serializedData.data - object of actual serialized data
+     * @returns {string} serializedData.field - the name of field to be compared
+     * @returns {*} serializedData.expectedValue - the expected value of the field
+     */
     const getSerializedData = (testQuery) => {
       const clonedFakeTermsTestCases = _.clone(fakeTermsTestCases);
       const query = { ...defaultPaginationQuery, ...testQuery };
