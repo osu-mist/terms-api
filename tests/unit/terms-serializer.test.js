@@ -50,7 +50,10 @@ describe('Test terms-serializer', () => {
    */
   const checkTermSchema = (resource) => {
     const {
-      type, links, id, attributes,
+      type,
+      links,
+      id,
+      attributes,
     } = resource;
     const termProps = getDefinitionProps('TermResource');
     expect(resource).to.contain.keys(_.keys(termProps));
