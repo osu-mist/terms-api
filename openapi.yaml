@@ -153,7 +153,7 @@ definitions:
         type: integer
         description: Total number of results
         example: 10
-      totalPage:
+      totalPages:
         type: integer
         description: Total number of pages
         example: 10
@@ -165,6 +165,28 @@ definitions:
         type: integer
         description: Number of results per page
         example: 25
+  PaginationLinks:
+    properties:
+      self:
+        type: string
+        format: url
+        description: Self-link of current resource
+      first:
+        type: string
+        format: url
+        description: The first page of data
+      last:
+        type: string
+        format: url
+        description: The last page of data
+      prev:
+        type: string
+        format: url
+        description: The previous page of data
+      next:
+        type: string
+        format: url
+        description: The next page of data
   SelfLink:
     properties:
       self:
@@ -256,7 +278,7 @@ definitions:
       meta:
         $ref: '#/definitions/Meta'
       links:
-        $ref: '#/definitions/SelfLink'
+        $ref: '#/definitions/PaginationLinks'
       data:
         type: array
         items:
