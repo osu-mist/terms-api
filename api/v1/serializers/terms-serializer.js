@@ -11,7 +11,7 @@ const { apiBaseUrl, resourcePathLink, paramsLink } = appRoot.require('utils/uri-
 const termResourceProp = openapi.definitions.TermResource.properties;
 const termResourceType = termResourceProp.type.enum[0];
 const termResourceKeys = _.keys(termResourceProp.attributes.properties);
-const termResourcePath = 'term';
+const termResourcePath = 'terms';
 const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
 
 /**
