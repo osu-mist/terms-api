@@ -136,7 +136,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
     identifierField: 'termCode',
     resourceKeys: termResourceKeys,
     pagination,
-    resourcePath: 'term',
+    resourcePath: 'terms',
     topLevelSelfLink,
     query: _.omit(query, 'page[size]', 'page[number]'),
     enableDataLinks: true,
