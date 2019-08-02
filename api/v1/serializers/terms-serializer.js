@@ -15,8 +15,8 @@ const termResourcePath = 'terms';
 const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
 
 /**
- * @summary A function to generate calendar year and season
- * @function
+ * A function to generate calendar year and season
+ *
  * @param {object} rawTerm Raw term data rows from data source
  */
 const generateCalendarYearAndSeason = (rawTerm) => {
@@ -28,8 +28,8 @@ const generateCalendarYearAndSeason = (rawTerm) => {
 };
 
 /**
- * @summary A function to generate term status
- * @function
+ * A function to generate term status
+ *
  * @param {object} rawTerm Raw term data rows from data source
  * @param {string} currentTermCode current term code
  */
@@ -53,8 +53,8 @@ const generateTermStatus = (rawTerm, currentTermCode) => {
 };
 
 /**
- * @summary A function to serialize raw terms data
- * @function
+ * A function to serialize raw terms data
+ *
  * @param {object[]} rawTerms Raw terms data rows from data source
  * @param {string} currentTermCode current term code
  * @param {object} query Query parameters
@@ -146,8 +146,8 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
 };
 
 /**
- * @summary A function to serialize raw term data
- * @function
+ * A function to serialize raw term data
+ *
  * @param {object} rawTerm Raw term data rows from data source
  * @param {string} currentTermCode current term code
  * @returns {object} Serialized term resource data

@@ -22,8 +22,8 @@ describe('Test terms-serializer', () => {
   let clock;
 
   /**
-   * @summary Helper function to get definition from openapi specification
-   * @function
+   * Helper function to get definition from openapi specification
+   *
    * @param {string} definition the name of definition
    * @param {object} nestedOption nested option
    * @param {boolean} nestedOption.dataItem a boolean which represents whether it's a data item
@@ -44,8 +44,8 @@ describe('Test terms-serializer', () => {
   };
 
   /**
-   * @summary Helper function to check the schema of term resource
-   * @function
+   * Helper function to check the schema of term resource
+   *
    * @param {object} resource resource to check
    */
   const checkTermSchema = (resource) => {
@@ -99,8 +99,8 @@ describe('Test terms-serializer', () => {
     } = testData;
 
     /**
-     * @summary Helper function to call serializeTerms with test queries
-     * @function
+     * Helper function to call serializeTerms with test queries
+     *
      * @param {object} testQuery test query
      * @returns {object} serializedData - object of serialized data and test case
      */
