@@ -10,7 +10,7 @@ const { contrib } = appRoot.require('api/v1/db/oracledb/contrib/contrib');
 /**
  * @summary Get current term code
  * @function
- * @param {Object} connection
+ * @param {object} connection connection
  * @returns {Promise<string>} current term code
  */
 const getCurrentTermCode = async (connection) => {
@@ -28,8 +28,8 @@ const getCurrentTermCode = async (connection) => {
 /**
  * @summary Return a list of terms
  * @function
- * @param {string} query
- * @returns {Promise<Object[]>} Promise object represents a list of terms
+ * @param {string} query query
+ * @returns {Promise<object[]>} Promise object represents a list of terms
  */
 const getTerms = async (query) => {
   const connection = await conn.getConnection();
@@ -47,7 +47,7 @@ const getTerms = async (query) => {
  * @summary Return a specific term by unique term code
  * @function
  * @param {string} termCode Unique term code
- * @returns {Promise<Object>} Promise object represents a specific term or return undefined if term
+ * @returns {Promise<object>} Promise object represents a specific term or return undefined if term
  *                            is not found
  */
 const getTermByTermCode = async (termCode) => {

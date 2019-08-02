@@ -17,7 +17,7 @@ const termResourceUrl = resourcePathLink(apiBaseUrl, termResourcePath);
 /**
  * @summary A function to generate calendar year and season
  * @function
- * @param {Object} rawTerm Raw term data rows from data source
+ * @param {object} rawTerm Raw term data rows from data source
  */
 const generateCalendarYearAndSeason = (rawTerm) => {
   const { description } = rawTerm;
@@ -30,7 +30,7 @@ const generateCalendarYearAndSeason = (rawTerm) => {
 /**
  * @summary A function to generate term status
  * @function
- * @param {Object} rawTerm Raw term data rows from data source
+ * @param {object} rawTerm Raw term data rows from data source
  * @param {string} currentTermCode current term code
  */
 const generateTermStatus = (rawTerm, currentTermCode) => {
@@ -55,10 +55,10 @@ const generateTermStatus = (rawTerm, currentTermCode) => {
 /**
  * @summary A function to serialize raw terms data
  * @function
- * @param {Object[]} rawTerms Raw terms data rows from data source
+ * @param {object[]} rawTerms Raw terms data rows from data source
  * @param {string} currentTermCode current term code
- * @param {Object} query Query parameters
- * @returns {Object} Serialized term resource data
+ * @param {object} query Query parameters
+ * @returns {object} Serialized term resource data
  */
 const serializeTerms = (rawTerms, currentTermCode, query) => {
   /**
@@ -69,13 +69,11 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
     generateTermStatus(rawTerm, currentTermCode);
   });
 
-  /**
-   * Filter result if filter parameters are provided
-   */
-  /** Return true if actual value is not matched with the query value */
+  /** Filter result if filter parameters are provided */
+  // Return true if actual value is not matched with the query value
   const isNotExactlyMatch = (rawTerm, field) => query[field] && rawTerm[field] !== query[field];
 
-  /** Return true if date fall outside the range or the date ranges are null */
+  // Return true if date fall outside the range or the date ranges are null
   const isNotInRange = (rawTerm, field) => {
     const date = Date.parse(query[field]);
     let startDate;
@@ -100,7 +98,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
     return query[field] && (startDate > date || endDate < date || !startDate || !endDate);
   };
 
-  /** Return true any of item from the actual list doesn't included in the query list */
+  // Return true any of item from the actual list doesn't included in the query list
   const isNotInEnums = (rawTerm, field) => (
     query[field] && !_.some(rawTerm[field], it => _.includes(query[field], it))
   );
@@ -113,9 +111,7 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
                              || isNotInRange(rawTerm, 'registrationDate')
                              || isNotInEnums(rawTerm, 'status'));
 
-  /**
-   * Add pagination links and meta information to options if pagination is enabled
-   */
+  /** Add pagination links and meta information to options if pagination is enabled */
   const pageQuery = {
     size: query['page[size]'],
     number: query['page[number]'],
@@ -152,9 +148,9 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
 /**
  * @summary A function to serialize raw term data
  * @function
- * @param {Object} rawTerm Raw term data rows from data source
+ * @param {object} rawTerm Raw term data rows from data source
  * @param {string} currentTermCode current term code
- * @returns {Object} Serialized term resource data
+ * @returns {object} Serialized term resource data
  */
 const serializeTerm = (rawTerm, currentTermCode) => {
   const topLevelSelfLink = resourcePathLink(termResourceUrl, rawTerm.termCode);

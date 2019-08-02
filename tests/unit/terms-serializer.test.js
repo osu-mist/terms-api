@@ -25,10 +25,10 @@ describe('Test terms-serializer', () => {
    * @summary Helper function to get definition from openapi specification
    * @function
    * @param {string} definition the name of definition
-   * @param {Object} nestedOption nested option
+   * @param {object} nestedOption nested option
    * @param {boolean} nestedOption.dataItem a boolean which represents whether it's a data item
    * @param {string} nestedOption.dataField data field name
-   * @returns {Object}
+   * @returns {object} the result of definition
    */
   const getDefinitionProps = (definition, nestedOption) => {
     let result = openapi.definitions[definition].properties;
@@ -46,7 +46,7 @@ describe('Test terms-serializer', () => {
   /**
    * @summary Helper function to check the schema of term resource
    * @function
-   * @param {Object} resource
+   * @param {object} resource resource to check
    */
   const checkTermSchema = (resource) => {
     const {
@@ -101,11 +101,8 @@ describe('Test terms-serializer', () => {
     /**
      * @summary Helper function to call serializeTerms with test queries
      * @function
-     * @param {Object} testQuery
-     * @returns {Object} serializedData - object of serialized data and test case
-     * @returns {Object} serializedData.data - object of actual serialized data
-     * @returns {string} serializedData.field - the name of field to be compared
-     * @returns {*} serializedData.expectedValue - the expected value of the field
+     * @param {object} testQuery test query
+     * @returns {object} serializedData - object of serialized data and test case
      */
     const getSerializedData = (testQuery) => {
       const clonedFakeTermsTestCases = _.clone(fakeTermsTestCases);
