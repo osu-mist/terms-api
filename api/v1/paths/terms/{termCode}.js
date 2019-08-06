@@ -3,10 +3,11 @@ const appRoot = require('app-root-path');
 const termsDao = require('../../db/oracledb/terms-dao');
 
 const { errorBuilder, errorHandler } = appRoot.require('errors/errors');
-const { openapi: { paths } } = appRoot.require('utils/load-openapi');
 
 /**
- * @summary Get term by term code
+ * Get term by term code
+ *
+ * @type RequestHandler
  */
 const get = async (req, res) => {
   try {
@@ -21,7 +22,5 @@ const get = async (req, res) => {
     errorHandler(res, err);
   }
 };
-
-get.apiDoc = paths['/terms/{termCode}'].get;
 
 module.exports = { get };
