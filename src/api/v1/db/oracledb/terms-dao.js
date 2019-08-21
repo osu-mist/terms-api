@@ -1,10 +1,8 @@
-const appRoot = require('app-root-path');
-const _ = require('lodash');
+import _ from 'lodash';
 
-const termsSerializer = require('../../serializers/terms-serializer');
-
-const conn = appRoot.require('api/v1/db/oracledb/connection');
-const { contrib } = appRoot.require('api/v1/db/oracledb/contrib/contrib');
+import { serializeTerms, serializeTerm } from 'api/v1/serializers/terms-serializer';
+import { getConnection } from './connection';
+import contrib from './contrib/contrib';
 
 
 /**
@@ -32,11 +30,11 @@ const getCurrentTermCode = async (connection) => {
  * @returns {Promise<object[]>} Promise object represents a list of terms
  */
 const getTerms = async (query) => {
-  const connection = await conn.getConnection();
+  const connection = await getConnection();
   try {
     const { rows } = await connection.execute(contrib.getTerms());
     const currentTermCode = await getCurrentTermCode(connection);
-    const serializedTerms = termsSerializer.serializeTerms(rows, currentTermCode, query);
+    const serializedTerms = serializeTerms(rows, currentTermCode, query);
     return serializedTerms;
   } finally {
     connection.close();
@@ -51,7 +49,7 @@ const getTerms = async (query) => {
  *                            is not found
  */
 const getTermByTermCode = async (termCode) => {
-  const connection = await conn.getConnection();
+  const connection = await getConnection();
   try {
     const { rows } = await connection.execute(contrib.getTerms(termCode), [termCode]);
     const currentTermCode = await getCurrentTermCode(connection);
@@ -63,7 +61,7 @@ const getTermByTermCode = async (termCode) => {
       throw new Error('Expect a single object but got multiple results.');
     } else {
       const [rawTerm] = rows;
-      const serializedTerm = termsSerializer.serializeTerm(rawTerm, currentTermCode);
+      const serializedTerm = serializeTerm(rawTerm, currentTermCode);
       return serializedTerm;
     }
   } finally {
@@ -71,7 +69,7 @@ const getTermByTermCode = async (termCode) => {
   }
 };
 
-module.exports = {
+export {
   getCurrentTermCode,
   getTerms,
   getTermByTermCode,

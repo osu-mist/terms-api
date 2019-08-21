@@ -1,12 +1,11 @@
-const appRoot = require('app-root-path');
-const JsonApiSerializer = require('jsonapi-serializer').Serializer;
-const _ = require('lodash');
-const moment = require('moment-timezone');
+import { Serializer as JsonApiSerializer } from 'jsonapi-serializer';
+import _ from 'lodash';
+import moment from 'moment-timezone';
 
-const { serializerOptions } = appRoot.require('utils/jsonapi');
-const { openapi } = appRoot.require('utils/load-openapi');
-const { paginate } = appRoot.require('utils/paginator');
-const { apiBaseUrl, resourcePathLink, paramsLink } = appRoot.require('utils/uri-builder');
+import serializerOptions from 'utils/jsonapi';
+import openapi from 'utils/load-openapi';
+import paginate from 'utils/paginator';
+import { apiBaseUrl, resourcePathLink, paramsLink } from 'utils/uri-builder';
 
 const termResourceProp = openapi.definitions.TermResource.properties;
 const termResourceType = termResourceProp.type.enum[0];
@@ -171,7 +170,7 @@ const serializeTerm = (rawTerm, currentTermCode) => {
   ).serialize(rawTerm);
 };
 
-module.exports = {
+export {
   generateCalendarYearAndSeason,
   generateTermStatus,
   serializeTerms,

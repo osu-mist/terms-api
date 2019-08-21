@@ -1,15 +1,19 @@
-const appRoot = require('app-root-path');
-const chai = require('chai');
-const assertArrays = require('chai-arrays');
-const chaiAsPromised = require('chai-as-promised');
-const chaiDatetime = require('chai-datetime');
-const _ = require('lodash');
-const moment = require('moment-timezone');
-const sinon = require('sinon');
+import chai from 'chai';
+import assertArrays from 'chai-arrays';
+import chaiAsPromised from 'chai-as-promised';
+import chaiDatetime from 'chai-datetime';
+import _ from 'lodash';
+import moment from 'moment-timezone';
+import sinon from 'sinon';
 
-const termsSerializer = appRoot.require('api/v1/serializers/terms-serializer');
-const testData = appRoot.require('tests/unit/test-data');
-const { openapi } = appRoot.require('utils/load-openapi');
+import {
+  generateCalendarYearAndSeason,
+  generateTermStatus,
+  serializeTerm,
+  serializeTerms,
+} from 'api/v1/serializers/terms-serializer';
+import testData from 'tests/unit/test-data';
+import openapi from 'utils/load-openapi';
 
 chai.should();
 chai.use(assertArrays);
@@ -71,7 +75,6 @@ describe('Test terms-serializer', () => {
   });
 
   it('test generateCalendarYearAndSeason', () => {
-    const { generateCalendarYearAndSeason } = termsSerializer;
     const { generateCalendarYearAndSeasonTestCases } = testData;
 
     _.forEach(generateCalendarYearAndSeasonTestCases, ({ testCase, season, calendarYear }) => {
@@ -81,7 +84,6 @@ describe('Test terms-serializer', () => {
     });
   });
   it('test generateTermStatus', () => {
-    const { generateTermStatus } = termsSerializer;
     const { generateTermStatusTestCases } = testData;
 
     _.forEach(generateTermStatusTestCases, ({ testCase, status }) => {
@@ -90,7 +92,6 @@ describe('Test terms-serializer', () => {
     });
   });
   it('test serializeTerms', () => {
-    const { serializeTerms } = termsSerializer;
     const {
       fakeTermsTestCases,
       exactlyMatchQueryTestCases,
@@ -180,7 +181,6 @@ describe('Test terms-serializer', () => {
     _.forEach(serializedTerms.data, termResource => checkTermSchema(termResource));
   });
   it('test serializeTerms', () => {
-    const { serializeTerm } = termsSerializer;
     const { fakeTermsTestCases } = testData;
 
     _.forEach(fakeTermsTestCases, (fakeTermsTestCase) => {

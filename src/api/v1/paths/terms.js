@@ -1,8 +1,5 @@
-const appRoot = require('app-root-path');
-
-const termsDao = require('../db/oracledb/terms-dao');
-
-const { errorHandler } = appRoot.require('errors/errors');
+import { errorHandler } from 'errors/errors';
+import { getTerms } from '../db/oracledb/terms-dao';
 
 /**
  * Get terms
@@ -11,11 +8,13 @@ const { errorHandler } = appRoot.require('errors/errors');
  */
 const get = async (req, res) => {
   try {
-    const result = await termsDao.getTerms(req.query);
+    const result = await getTerms(req.query);
     return res.send(result);
   } catch (err) {
     return errorHandler(res, err);
   }
 };
 
-module.exports = { get };
+export default {
+  get,
+};
