@@ -13,7 +13,7 @@ import {
   serializeTerms,
 } from 'api/v1/serializers/terms-serializer';
 import testData from 'tests/unit/test-data';
-import openapi from 'utils/load-openapi';
+import { openapi } from 'utils/load-openapi';
 
 chai.should();
 chai.use(assertArrays);

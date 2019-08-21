@@ -15,6 +15,6 @@ const get = async (req, res) => {
   }
 };
 
-export default {
+export {
   get,
 };

@@ -1,9 +1,9 @@
 import _ from 'lodash';
 
-import { serializeTerms, serializeTerm } from 'api/v1/serializers/terms-serializer';
-import { getConnection } from './connection';
-import contrib from './contrib/contrib';
+import { getConnection } from 'api/v1/db/oracledb/connection';
+import { contrib } from 'api/v1/db/oracledb/contrib/contrib';
 
+import { serializeTerm, serializeTerms } from '../../serializers/terms-serializer';
 
 /**
  * Get current term code
