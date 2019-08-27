@@ -29,7 +29,7 @@ describe('Test terms-dao', () => {
       getConnection: sinon.stub().resolves(connStub),
     },
     '../../serializers/terms-serializer': {
-      serializeTerm: (rawTerms) => rawTerms,
+      serializeTerm: (rawTerm) => rawTerm,
       serializeTerms: (rawTerms) => rawTerms,
     },
   });
