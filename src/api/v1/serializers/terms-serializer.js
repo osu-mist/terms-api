@@ -99,16 +99,16 @@ const serializeTerms = (rawTerms, currentTermCode, query) => {
 
   // Return true any of item from the actual list doesn't included in the query list
   const isNotInEnums = (rawTerm, field) => (
-    query[field] && !_.some(rawTerm[field], it => _.includes(query[field], it))
+    query[field] && !_.some(rawTerm[field], (it) => _.includes(query[field], it))
   );
 
-  _.remove(rawTerms, rawTerm => isNotExactlyMatch(rawTerm, 'academicYear')
-                             || isNotExactlyMatch(rawTerm, 'calendarYear')
-                             || isNotExactlyMatch(rawTerm, 'financialAidYear')
-                             || isNotInRange(rawTerm, 'date')
-                             || isNotInRange(rawTerm, 'housingDate')
-                             || isNotInRange(rawTerm, 'registrationDate')
-                             || isNotInEnums(rawTerm, 'status'));
+  _.remove(rawTerms, (rawTerm) => isNotExactlyMatch(rawTerm, 'academicYear')
+                               || isNotExactlyMatch(rawTerm, 'calendarYear')
+                               || isNotExactlyMatch(rawTerm, 'financialAidYear')
+                               || isNotInRange(rawTerm, 'date')
+                               || isNotInRange(rawTerm, 'housingDate')
+                               || isNotInRange(rawTerm, 'registrationDate')
+                               || isNotInEnums(rawTerm, 'status'));
 
   /** Add pagination links and meta information to options if pagination is enabled */
   const pageQuery = {

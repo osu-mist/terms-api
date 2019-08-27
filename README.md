@@ -38,10 +38,10 @@ $ npm install
 Run the application:
 
   ```shell
-  # Run linting and testing tasks before starting the app
-  $ gulp run
+  # Build and run the app
+  $ gulp devRun
 
-  # Run the app without running linting and testing tasks (only for development)
+  # Run the app without building
   $ gulp start
   ```
 
@@ -59,7 +59,8 @@ $ gulp lint
 $ npm run lint
 ```
 
-> Note: We are following [Airbnb's style](https://github.com/airbnb/javascript) as the JavaScript style guide.
+> Note: We use [Airbnb's style](https://github.com/airbnb/javascript) as a base style guide.
+> Additional rules and modifications can be found in [.eslintrc.yml](./.eslintrc.yml).
 
 ### Testing
 
@@ -102,6 +103,17 @@ $ gulp babel
 # Using npm
 $ npm run babel
 ```
+
+### Resolving Paths
+
+This skeleton uses
+[babel-plugin-module-resolver](https://github.com/tleunen/babel-plugin-module-resolver) to resolve
+paths. The list of functions that use this plugin can be found in
+[babel.config.js](./babel.config.js) under `transformFunctions`.
+
+> Note: `proxyquire` is included but only the path given by the first argument to this function will
+> resolve correctly. The keys for each dependency path in the second argument must be relative
+> paths.
 
 ## Base project off the skeleton
 
@@ -163,12 +175,12 @@ The following instructions show you how to connect the API to an Oracle database
 
     > Note: To avoid `ORA-02396: exceeded maximum idle time` and prevent deadlocks, the [best practice](https://github.com/oracle/node-oracledb/issues/928#issuecomment-398238519) is to keep `poolMin` the same as `poolMax`. Also, ensure [increasing the number of worker threads](https://github.com/oracle/node-oracledb/blob/node-oracledb-v1/doc/api.md#-82-connections-and-number-of-threads) available to node-oracledb. The thread pool size should be at least equal to the maximum number of connections and less than 128.
 
-4. If the SQL codes/queries contain intellectual property like Banner table names, put them into `api/v1/db/oracledb/contrib` folder and use [git-submodule](https://git-scm.com/docs/git-submodule) to manage submodules:
+4. If the SQL codes/queries contain intellectual property like Banner table names, put them into `src/api/v1/db/oracledb/contrib` folder and use [git-submodule](https://git-scm.com/docs/git-submodule) to manage submodules:
 
-    * Add the given repository as a submodule at `api/v1/db/oracledb/contrib`:
+    * Add the given repository as a submodule at `src/api/v1/db/oracledb/contrib`:
 
         ```shell
-        $ git submodule add <contrib_repo_git_url> api/v1/db/oracledb/contrib
+        $ git submodule add <contrib_repo_git_url> src/api/v1/db/oracledb/contrib
         ```
 
     * Fetch the submodule from the contrib repository:
@@ -177,10 +189,10 @@ The following instructions show you how to connect the API to an Oracle database
         $ git submodule update --init
         ```
 
-5. Copy [api/v1/db/oracledb/pets-dao-example.js](api/v1/db/oracledb/pets-dao-example.js) to `api/v1/db/oracledb/<resources>-dao.js` and modify as necessary:
+5. Copy [src/api/v1/db/oracledb/pets-dao-example.js](./src/api/v1/db/oracledb/pets-dao-example.js) to `src/api/v1/db/oracledb/<resources>-dao.js` and modify as necessary:
 
     ```shell
-    $ cp api/v1/db/oracledb/pets-dao-example.js api/v1/db/oracledb/<resources>-dao.js
+    $ cp src/api/v1/db/oracledb/pets-dao-example.js src/api/v1/db/oracledb/<resources>-dao.js
     ```
 
 7. Make sure to use the correct path for the new DAO file at path handlers files:

@@ -178,7 +178,7 @@ describe('Test terms-serializer', () => {
     expect(meta).to.contain.keys(_.keys(getDefinitionProps('Meta')));
     expect(data).to.be.an('array');
 
-    _.forEach(serializedTerms.data, termResource => checkTermSchema(termResource));
+    _.forEach(serializedTerms.data, (termResource) => checkTermSchema(termResource));
   });
   it('test serializeTerms', () => {
     const { fakeTermsTestCases } = testData;
