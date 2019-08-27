@@ -29,7 +29,8 @@ describe('Test terms-dao', () => {
       getConnection: sinon.stub().resolves(connStub),
     },
     '../../serializers/terms-serializer': {
-      serializeTerm: () => 123,
+      serializeTerm: (rawTerms) => rawTerms,
+      serializeTerms: (rawTerms) => rawTerms,
     },
   });
 
@@ -62,11 +63,10 @@ describe('Test terms-dao', () => {
     return Promise.all(rejectedPromises);
   });
   it('getTerms should be fulfilled', () => {
-    const expectResult = {};
+    const expectResult = [{}, {}];
 
     sinon.stub(contrib, 'getTerms').returns('multiResults');
     sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
-    // sinon.stub(termsSerializer, 'serializeTerms').returns(expectResult);
     const fulfilledResult = termsDao.getTerms();
 
     return fulfilledResult.should
