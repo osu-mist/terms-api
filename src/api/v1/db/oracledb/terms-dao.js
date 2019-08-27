@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import { serializeTerm, serializeTerms } from 'api/v1/serializers/terms-serializer';
 import { getConnection } from './connection';
-import * as contrib from './contrib/contrib';
+import { contrib } from './contrib/contrib';
 
 /**
  * Get current term code

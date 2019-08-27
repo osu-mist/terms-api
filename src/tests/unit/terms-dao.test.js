@@ -4,7 +4,7 @@ import config from 'config';
 import _ from 'lodash';
 import sinon from 'sinon';
 
-import * as contrib from 'api/v1/db/oracledb/contrib/contrib';
+import { contrib } from 'api/v1/db/oracledb/contrib/contrib';
 
 sinon.replace(config, 'get', () => ({ oracledb: {} }));
 const conn = require('api/v1/db/oracledb/connection');
