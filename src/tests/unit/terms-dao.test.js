@@ -8,32 +8,31 @@ import sinon from 'sinon';
 import { contrib } from 'api/v1/db/oracledb/contrib/contrib';
 
 sinon.replace(config, 'get', () => ({ oracledb: {} }));
-
-const connStub = {
-  execute: (sql) => {
-    const sqlResults = {
-      multiResults: { rows: [{}, {}] },
-      singleResult: { rows: [{}] },
-      emptyResult: { rows: [] },
-      currentTermCode: { rows: [{ termCode: 'fakeTermCode' }] },
-    };
-    return sql in sqlResults ? sqlResults[sql] : sqlResults.singleResult;
-  },
-  close: () => null,
-};
-
-const termsDao = proxyquire('../../api/v1/db/oracledb/terms-dao', {
-  './connection': {
-    getConnection: sinon.stub().resolves(connStub),
-  },
-});
-
-const termsSerializer = require('../../api/v1/serializers/terms-serializer', {});
-
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('Test terms-dao', () => {
+  const connStub = {
+    execute: (sql) => {
+      const sqlResults = {
+        multiResults: { rows: [{}, {}] },
+        singleResult: { rows: [{}] },
+        emptyResult: { rows: [] },
+        currentTermCode: { rows: [{ termCode: 'fakeTermCode' }] },
+      };
+      return sql in sqlResults ? sqlResults[sql] : sqlResults.singleResult;
+    },
+    close: () => null,
+  };
+  const termsDao = proxyquire('../../api/v1/db/oracledb/terms-dao', {
+    './connection': {
+      getConnection: sinon.stub().resolves(connStub),
+    },
+    '../../serializers/terms-serializer': {
+      serializeTerm: () => 123,
+    },
+  });
+
   afterEach(() => sinon.restore());
 
   it('getCurrentTermCode should be fulfilled', async () => {
@@ -67,7 +66,7 @@ describe('Test terms-dao', () => {
 
     sinon.stub(contrib, 'getTerms').returns('multiResults');
     sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
-    sinon.stub(termsSerializer, 'serializeTerms').returns(expectResult);
+    // sinon.stub(termsSerializer, 'serializeTerms').returns(expectResult);
     const fulfilledResult = termsDao.getTerms();
 
     return fulfilledResult.should
@@ -92,7 +91,6 @@ describe('Test terms-dao', () => {
       // this test case will require a call of termsSerializer
       { testCase: 'singleResult', expected: expectedSerializedSingleTerm },
     ];
-    sinon.stub(termsSerializer, 'serializeTerm').onCall(0).returns(expectedSerializedSingleTerm);
 
     const fulfilledPromises = [];
     _.forEach(fulfilledCases, ({ testCase, expected }, index) => {
