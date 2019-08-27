@@ -2,47 +2,49 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import config from 'config';
 import _ from 'lodash';
+import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 
 import { contrib } from 'api/v1/db/oracledb/contrib/contrib';
 
 sinon.replace(config, 'get', () => ({ oracledb: {} }));
-const conn = require('api/v1/db/oracledb/connection');
-const termsDao = require('api/v1/db/oracledb/terms-dao');
-const termsSerializer = require('api/v1/serializers/terms-serializer');
+
+const connStub = {
+  execute: (sql) => {
+    const sqlResults = {
+      multiResults: { rows: [{}, {}] },
+      singleResult: { rows: [{}] },
+      emptyResult: { rows: [] },
+      currentTermCode: { rows: [{ termCode: 'fakeTermCode' }] },
+    };
+    return sql in sqlResults ? sqlResults[sql] : sqlResults.singleResult;
+  },
+  close: () => null,
+};
+
+const termsDao = proxyquire('../../api/v1/db/oracledb/terms-dao', {
+  './connection': {
+    getConnection: sinon.stub().resolves(connStub),
+  },
+});
+
+const termsSerializer = require('../../api/v1/serializers/terms-serializer', {});
 
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('Test terms-dao', () => {
-  beforeEach(() => {
-    sinon.stub(conn, 'getConnection').resolves({
-      execute: (sql) => {
-        const sqlResults = {
-          multiResults: { rows: [{}, {}] },
-          singleResult: { rows: [{}] },
-          emptyResult: { rows: [] },
-          currentTermCode: { rows: [{ termCode: 'fakeTermCode' }] },
-        };
-        return sql in sqlResults ? sqlResults[sql] : sqlResults.singleResult;
-      },
-      close: () => null,
-    });
-  });
   afterEach(() => sinon.restore());
 
   it('getCurrentTermCode should be fulfilled', async () => {
-    const connection = await conn.getConnection();
-
     sinon.stub(contrib, 'getCurrentTerm').returns('currentTermCode');
-    const fulfilledResult = termsDao.getCurrentTermCode(connection);
+    const fulfilledResult = termsDao.getCurrentTermCode(connStub);
 
     return fulfilledResult.should
       .eventually.be.fulfilled
       .and.deep.equal('fakeTermCode');
   });
   it('getCurrentTermCode should be rejected', async () => {
-    const connection = await conn.getConnection();
     const getCurrentTermStub = sinon.stub(contrib, 'getCurrentTerm');
     const rejectedCases = [
       { testCase: 'emptyResult', error: 'Expect a single object but got empty results.' },
@@ -54,7 +56,7 @@ describe('Test terms-dao', () => {
     _.each(rejectedCases, ({ testCase, error }, index) => {
       getCurrentTermStub.onCall(index).returns(testCase);
 
-      const result = termsDao.getCurrentTermCode(connection);
+      const result = termsDao.getCurrentTermCode(connStub);
       rejectedPromises.push(result.should
         .eventually.be.rejectedWith(Error, error));
     });
