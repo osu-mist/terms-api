@@ -162,6 +162,10 @@ class IntegrationTests(utils.UtilsTestCase):
                     )
                 )
 
+    def test_get_terms_by_id(self):
+        for valid_id in self.test_cases['valid_term_ids']:
+            self.check_terms(f'/terms/{valid_id}')
+
 
 if __name__ == '__main__':
     arguments, argv = utils.parse_arguments()
