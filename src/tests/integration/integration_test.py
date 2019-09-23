@@ -39,77 +39,108 @@ class IntegrationTests(utils.UtilsTestCase):
     def tearDownClass(cls):
         cls.session.close()
 
-    def test_get_all_pets(self, endpoint='/pets'):
-        """Test case: GET /pets"""
-
-        nullable_fields = ['owner']
-        self.check_endpoint(endpoint, 'PetResource', 200,
-                            nullable_fields=nullable_fields)
-
-    def test_get_pets_with_filter(self, endpoint='/pets'):
-        """Test case: GET /pets with species filter"""
-
-        testing_species = ['dog', 'CAT', 'tUrTlE']
-
-        for species in testing_species:
-            params = {'species': species}
-            response = self.check_endpoint(endpoint, 'PetResource', 200,
-                                           query_params=params)
-
-            response_data = response.json()['data']
-            for resource in response_data:
-                actual_species = resource['attributes']['species']
-                self.assertEqual(actual_species.lower(), species.lower())
-
-    def test_get_pets_pagination(self, endpoint='/pets'):
-        """Test case: GET /pets with pagination parameters"""
-
-        testing_paginations = [
-            {'number': 1, 'size': 25, 'expected_status_code': 200},
-            {'number': 1, 'size': None, 'expected_status_code': 200},
-            {'number': None, 'size': 25, 'expected_status_code': 200},
-            {'number': 999, 'size': 1, 'expected_status_code': 200},
-            {'number': -1, 'size': 25, 'expected_status_code': 400},
-            {'number': 1, 'size': -1, 'expected_status_code': 400},
-            {'number': 1, 'size': 501, 'expected_status_code': 400}
+    def check_terms(
+        self,
+        endpoint,
+        query_params=None,
+        resource='TermResource',
+        response_code=200
+    ):
+        nullable_fields = [
+            'description',
+            'season',
+            'calendarYear',
+            'academicYear',
+            'financialAidYear',
+            'startDate',
+            'endDate',
+            'housingStartDate',
+            'housingEndDate',
+            'registrationStartDate',
+            'registrationEndDate',
+            'status',
         ]
-        nullable_fields = ['owner']
-        for pagination in testing_paginations:
-            params = {f'page[{k}]': pagination[k] for k in ['number', 'size']}
-            expected_status_code = pagination['expected_status_code']
-            resource = (
-                'PetResource' if expected_status_code == 200
-                else 'ErrorObject'
+        return self.check_endpoint(
+            endpoint,
+            resource,
+            response_code,
+            query_params,
+            nullable_fields=nullable_fields
+        )
+
+    def check_filter_equal(self, resources, attribute):
+        test_cases = set(filter(
+            lambda x: x is not None,
+            map(
+                lambda x: x['attributes'][attribute],
+                resources
             )
-            response = self.check_endpoint(endpoint, resource,
-                                           expected_status_code,
-                                           query_params=params,
-                                           nullable_fields=nullable_fields)
-            content = self.get_json_content(response)
-            if expected_status_code == 200:
-                try:
-                    meta = content['meta']
-                    num = pagination['number'] if pagination['number'] else 1
-                    size = pagination['size'] if pagination['size'] else 25
+        ))
+        logger.info(f'{attribute} test cases: {test_cases}')
+        for test_case in test_cases:
+            filtered_response = self.check_terms(
+                '/terms',
+                {attribute: test_case}
+            )
+            for filtered_resource in filtered_response.json()['data']:
+                self.assertEqual(
+                    filtered_resource['attributes'][attribute],
+                    test_case
+                )
 
-                    self.assertEqual(num, meta['currentPageNumber'])
-                    self.assertEqual(size, meta['currentPageSize'])
-                except KeyError as error:
-                    self.fail(error)
+    def check_filter_date(self, resources, attribute):
+        start_attributes = {
+            'date': 'startDate',
+            'housingDate': 'housingStartDate',
+            'registrationDate': 'registrationStartDate'
+        }
+        end_attributes = {
+            'date': 'endDate',
+            'housingDate': 'housingEndDate',
+            'registrationDate': 'registrationEndDate'
+        }
+        test_cases = set(filter(
+            lambda x: x is not None,
+            map(
+                lambda x: x['attributes'][start_attributes[attribute]],
+                resources
+            )
+        ))
+        logger.info(f'{attribute} test cases: {test_cases}')
+        for test_case in test_cases:
+            filtered_response = self.check_terms(
+                '/terms',
+                {attribute: test_case}
+            )
+            for filtered_resource in filtered_response.json()['data']:
+                self.assertGreaterEqual(
+                    test_case,
+                    filtered_resource['attributes']
+                                     [start_attributes[attribute]]
+                )
+                self.assertLessEqual(
+                    test_case,
+                    filtered_resource['attributes'][end_attributes[attribute]]
+                )
 
-    def test_get_pet_by_id(self, endpoint='/pets'):
-        """Test case: GET /pets/{id}"""
+    def test_get_terms(self):
+        response = self.check_terms('/terms')
+        resources = response.json()['data']
+        if not resources:
+            self.fail('No terms found')
 
-        valid_pet_ids = self.test_cases['valid_pet_ids']
-        invalid_pet_ids = self.test_cases['invalid_pet_ids']
-
-        for pet_id in valid_pet_ids:
-            resource = 'PetResource'
-            self.check_endpoint(f'{endpoint}/{pet_id}', resource, 200)
-
-        for pet_id in invalid_pet_ids:
-            resource = 'ErrorObject'
-            self.check_endpoint(f'{endpoint}/{pet_id}', resource, 404)
+        with self.subTest('filter academicYear'):
+            self.check_filter_equal(resources, 'academicYear')
+        with self.subTest('filter calendarYear'):
+            self.check_filter_equal(resources, 'calendarYear')
+        with self.subTest('filter financialAidYear'):
+            self.check_filter_equal(resources, 'financialAidYear')
+        with self.subTest('filter date'):
+            self.check_filter_date(resources, 'date')
+        with self.subTest('filter housingDate'):
+            self.check_filter_date(resources, 'housingDate')
+        with self.subTest('filter registrationDate'):
+            self.check_filter_date(resources, 'registrationDate')
 
 
 if __name__ == '__main__':
@@ -120,6 +151,7 @@ if __name__ == '__main__':
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
     IntegrationTests.setup(arguments.config_path, arguments.openapi_path)
     unittest.main(argv=argv)
