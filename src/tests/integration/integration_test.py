@@ -142,6 +142,26 @@ class IntegrationTests(utils.UtilsTestCase):
         with self.subTest('filter registrationDate'):
             self.check_filter_date(resources, 'registrationDate')
 
+    def test_filter_status(self):
+        statuses = (
+            self.openapi['definitions']['TermResource']['properties']
+                        ['attributes']['properties']['status']['items']
+                        ['enum']
+        )
+        statuses.append(','.join(statuses))
+        for status in statuses:
+            filtered_response = self.check_terms(
+                '/terms',
+                {'status': status}
+            )
+            for filtered_resource in filtered_response.json()['data']:
+                self.assertTrue(
+                    any(
+                        i in filtered_resource['attributes']['status']
+                        for i in status.split(',')
+                    )
+                )
+
 
 if __name__ == '__main__':
     arguments, argv = utils.parse_arguments()
