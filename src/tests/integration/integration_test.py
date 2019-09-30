@@ -41,8 +41,8 @@ class IntegrationTests(utils.UtilsTestCase):
 
     def check_terms(
         self,
-        endpoint,
         query_params=None,
+        endpoint='/terms',
         resource='TermResource',
         response_code=200
     ):
@@ -79,7 +79,6 @@ class IntegrationTests(utils.UtilsTestCase):
         logger.info(f'{attribute} test cases: {test_cases}')
         for test_case in test_cases:
             filtered_response = self.check_terms(
-                '/terms',
                 {attribute: test_case}
             )
             for filtered_resource in filtered_response.json()['data']:
@@ -109,7 +108,6 @@ class IntegrationTests(utils.UtilsTestCase):
         logger.info(f'{attribute} test cases: {test_cases}')
         for test_case in test_cases:
             filtered_response = self.check_terms(
-                '/terms',
                 {attribute: test_case}
             )
             for filtered_resource in filtered_response.json()['data']:
@@ -124,7 +122,7 @@ class IntegrationTests(utils.UtilsTestCase):
                 )
 
     def test_get_terms(self):
-        response = self.check_terms('/terms')
+        response = self.check_terms()
         resources = response.json()['data']
         if not resources:
             self.fail('No terms found')
@@ -151,7 +149,6 @@ class IntegrationTests(utils.UtilsTestCase):
         statuses.append(','.join(statuses))
         for status in statuses:
             filtered_response = self.check_terms(
-                '/terms',
                 {'status': status}
             )
             for filtered_resource in filtered_response.json()['data']:
@@ -164,7 +161,7 @@ class IntegrationTests(utils.UtilsTestCase):
 
     def test_get_terms_by_id(self):
         for valid_id in self.test_cases['valid_term_ids']:
-            self.check_terms(f'/terms/{valid_id}')
+            self.check_terms(endpoint=f'/terms/{valid_id}')
 
 
 if __name__ == '__main__':
