@@ -16,7 +16,6 @@
     }
   },
   "test_cases": {
-    "valid_pet_ids": ["1", "2", "3"],
-    "invalid_pet_ids": ["999", "-1", "invalid_id"]
+      "valid_term_ids": ["999999", "202303", "202302", "202301"]
   }
 }
