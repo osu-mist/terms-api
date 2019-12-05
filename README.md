@@ -1,4 +1,4 @@
-# Terms API ![version](https://img.shields.io/badge/version-v1-blue.svg) [![openapi](https://img.shields.io/badge/openapi-2.0-green.svg)](./openapi.yaml) ![node](https://img.shields.io/badge/node-10.13-brightgreen.svg)
+# Terms API ![version](https://img.shields.io/badge/version-v1-blue.svg) [![openapi](https://img.shields.io/badge/openapi-2.0-green.svg)](./openapi.yaml) ![node](https://img.shields.io/badge/node-10.17-brightgreen.svg)
 
 The API provides terms data. API definition is contained in the [OpenAPI specification](./openapi.yaml).
 
@@ -40,11 +40,11 @@ $ npm install
 Run the application:
 
   ```shell
-  # Build and run the app
-  $ gulp devRun
+  # Build and run the app and watch for changes using nodemon
+  $ npm run dev
 
   # Run the app without building
-  $ gulp start
+  $ npm start
   ```
 
 ## Running the tests
@@ -147,13 +147,7 @@ The following instructions show you how to connect the API to an Oracle database
 
 1. Install [Oracle Instant Client](http://www.oracle.com/technetwork/database/database-technologies/instant-client/overview/index.html) by following [this installation guide](https://oracle.github.io/odpi/doc/installation.html). **IMPORTANT:** Download the Basic Package, not the Basic Light Package.
 
-2. Install [oracledb](https://www.npmjs.com/package/oracledb) via package management:
-
-    ```shell
-    $ npm install oracledb
-    ```
-
-3. Define `dataSources/oracledb` section in the `/config/default.yaml` to be like:
+2. Define `dataSources/oracledb` section in the `/config/default.yaml` to be like:
 
     ```yaml
     dataSources:
@@ -177,7 +171,7 @@ The following instructions show you how to connect the API to an Oracle database
 
     > Note: To avoid `ORA-02396: exceeded maximum idle time` and prevent deadlocks, the [best practice](https://github.com/oracle/node-oracledb/issues/928#issuecomment-398238519) is to keep `poolMin` the same as `poolMax`. Also, ensure [increasing the number of worker threads](https://github.com/oracle/node-oracledb/blob/node-oracledb-v1/doc/api.md#-82-connections-and-number-of-threads) available to node-oracledb. The thread pool size should be at least equal to the maximum number of connections and less than 128.
 
-4. If the SQL codes/queries contain intellectual property like Banner table names, put them into `src/api/v1/db/oracledb/contrib` folder and use [git-submodule](https://git-scm.com/docs/git-submodule) to manage submodules:
+3. If the SQL codes/queries contain intellectual property like Banner table names, put them into `src/api/v1/db/oracledb/contrib` folder and use [git-submodule](https://git-scm.com/docs/git-submodule) to manage submodules:
 
     * Add the given repository as a submodule at `src/api/v1/db/oracledb/contrib`:
 
@@ -191,59 +185,14 @@ The following instructions show you how to connect the API to an Oracle database
         $ git submodule update --init
         ```
 
-5. Copy [src/api/v1/db/oracledb/pets-dao-example.js](./src/api/v1/db/oracledb/pets-dao-example.js) to `src/api/v1/db/oracledb/<resources>-dao.js` and modify as necessary:
+4. Copy [src/api/v1/db/oracledb/pets-dao-example.js](./src/api/v1/db/oracledb/pets-dao-example.js) to `src/api/v1/db/oracledb/<resources>-dao.js` and modify as necessary:
 
     ```shell
     $ cp src/api/v1/db/oracledb/pets-dao-example.js src/api/v1/db/oracledb/<resources>-dao.js
     ```
 
-7. Make sure to use the correct path for the new DAO file at path handlers files:
+5. Make sure to use the correct path for the new DAO file at path handlers files:
 
     ```js
     import petsDao from '../db/oracledb/<resources>-dao';
-    ```
-
-## Docker
-
-[Dockerfile](Dockerfile) is also provided. To run the app in a container, install [Docker](https://www.docker.com/) first, then:
-
-1. Modify `WORKDIR` from the [Dockerfile](Dockerfile#L4-L5):
-
-    ```Dockerfile
-    # Copy folder to workspace
-    WORKDIR /usr/src/terms-api
-    COPY . /usr/src/terms-api
-    ```
-
-2. If the API requires [node-oracledb](https://oracle.github.io/node-oracledb/) to connect to an Oracle database, download an [Oracle Instant Client 12.2 Basic Light zip (64 bits)](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html) and place into `./bin` folder. In addition, uncomment [the following code](Dockerfile#L11-L18) from the Dockerfile:
-
-    ```Dockerfile
-    # Install Oracle Instant Client
-    RUN apt-get update && apt-get install -y libaio1 unzip
-    RUN mkdir -p /opt/oracle
-    RUN unzip bin/instantclient-basiclite-linux.x64-12.2.0.1.0.zip -d /opt/oracle
-    RUN cd /opt/oracle/instantclient_12_2 \
-        && ln -s libclntsh.so.12.1 libclntsh.so \
-        && ln -s libocci.so.12.1 libocci.so
-    RUN echo /opt/oracle/instantclient_12_2 > /etc/ld.so.conf.d/oracle-instantclient.conf \
-        && ldconfig
-    ```
-
-3. Build the docker image:
-
-    ```shell
-    $ docker build -t terms-api .
-    ```
-
-4. Run the app in a container:
-
-    ```shell
-    $ docker run -d \
-                 -p 8080:8080 \
-                 -p 8081:8081 \
-                 -v path/to/keytools/:/usr/src/terms-api/keytools:ro \
-                 -v "$PWD"/config:/usr/src/terms-api/config:ro \
-                 -v "$PWD"/logs:/usr/src/terms-api/logs \
-                 --name terms-api \
-                 terms-api
     ```

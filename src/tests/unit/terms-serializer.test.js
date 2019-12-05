@@ -67,10 +67,10 @@ describe('Test terms-serializer', () => {
     expect(attributes).to.contain.keys(_.keys(termProps.attributes.properties));
   };
 
-  before(() => {
+  beforeEach(() => {
     clock = sinon.useFakeTimers(moment.tz('2019-03-01', 'PST8PDT').toDate());
   });
-  after(() => {
+  afterEach(() => {
     clock.restore();
   });
 
