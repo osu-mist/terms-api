@@ -30,21 +30,21 @@ const generateCalendarYearAndSeason = (rawTerm) => {
  * A function to generate term status
  *
  * @param {object} rawTerm Raw term data rows from data source
- * @param {string} postCurrPrevTermCodes post interim, current, and prev interim term codes
+ * @param {string} postCurrPreTermCodes post -nterim, current, and pre-interim term codes
  */
-const generateTermStatus = (rawTerm, postCurrPrevTermCodes) => {
+const generateTermStatus = (rawTerm, postCurrPreTermCodes) => {
   const today = Date.parse(moment().tz('PST8PDT').format('YYYY-MM-DD'));
   const registrationStartDate = Date.parse(rawTerm.registrationStartDate);
   const registrationEndDate = Date.parse(rawTerm.registrationEndDate);
   const status = [];
 
   const { termCode } = rawTerm;
-  const { postInterimTermCode, currentTermCode, prevInterimTermCode } = postCurrPrevTermCodes;
+  const { postInterimTermCode, currentTermCode, preInterimTermCode } = postCurrPreTermCodes;
 
   /**
    * If the current date is not during a break, currentTermCode, postInterimTermCode and
-   * prevInterimTermCode should be the same. (means the current term will have the all current,
-   * post-interim, and prev-interim status).
+   * preInterimTermCode should be the same. (means the current term will have the all current,
+   * post-interim, and pre-interim status).
    */
   if (termCode === currentTermCode) {
     status.push('current');
@@ -52,8 +52,8 @@ const generateTermStatus = (rawTerm, postCurrPrevTermCodes) => {
   if (termCode === postInterimTermCode) {
     status.push('post-interim');
   }
-  if (termCode === prevInterimTermCode) {
-    status.push('prev-interim');
+  if (termCode === preInterimTermCode) {
+    status.push('pre-interim');
   }
 
   if (registrationStartDate <= today && today <= registrationEndDate) {
@@ -70,17 +70,17 @@ const generateTermStatus = (rawTerm, postCurrPrevTermCodes) => {
  * A function to serialize raw terms data
  *
  * @param {object[]} rawTerms Raw terms data rows from data source
- * @param {object} postCurrPrevTermCodes post interim, current, and prev interim term codes
+ * @param {object} postCurrPreTermCodes post-interim, current, and pre-interim term codes
  * @param {object} query Query parameters
  * @returns {object} Serialized term resource data
  */
-const serializeTerms = (rawTerms, postCurrPrevTermCodes, query) => {
+const serializeTerms = (rawTerms, postCurrPreTermCodes, query) => {
   /**
    * Calculate and generate fields for each term
    */
   _.forEach(rawTerms, (rawTerm) => {
     generateCalendarYearAndSeason(rawTerm);
-    generateTermStatus(rawTerm, postCurrPrevTermCodes);
+    generateTermStatus(rawTerm, postCurrPreTermCodes);
   });
 
   /** Filter result if filter parameters are provided */
@@ -163,10 +163,10 @@ const serializeTerms = (rawTerms, postCurrPrevTermCodes, query) => {
  * A function to serialize raw term data
  *
  * @param {object} rawTerm Raw term data rows from data source
- * @param {string} postCurrPrevTermCodes post interim, current, and prev interim term codes
+ * @param {string} postCurrPreTermCodes post-interim, current, and pre-interim term codes
  * @returns {object} Serialized term resource data
  */
-const serializeTerm = (rawTerm, postCurrPrevTermCodes) => {
+const serializeTerm = (rawTerm, postCurrPreTermCodes) => {
   const topLevelSelfLink = resourcePathLink(termResourceUrl, rawTerm.termCode);
   const serializerArgs = {
     identifierField: 'termCode',
@@ -177,7 +177,7 @@ const serializeTerm = (rawTerm, postCurrPrevTermCodes) => {
   };
 
   generateCalendarYearAndSeason(rawTerm);
-  generateTermStatus(rawTerm, postCurrPrevTermCodes);
+  generateTermStatus(rawTerm, postCurrPreTermCodes);
 
   return new JsonApiSerializer(
     termResourceType,
