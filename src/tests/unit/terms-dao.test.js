@@ -18,11 +18,11 @@ describe('Test terms-dao', () => {
         multiResults: { rows: [{}, {}] },
         singleResult: { rows: [{}] },
         emptyResult: { rows: [] },
-        postCurrPrevTermCodes: {
+        postCurrPreTermCodes: {
           rows: [
             {
               postInterimTermCode: 'fakeTermCode',
-              prevInterimTermCode: 'fakeTermCode',
+              preInterimTermCode: 'fakeTermCode',
             },
           ],
         },
@@ -43,23 +43,23 @@ describe('Test terms-dao', () => {
 
   afterEach(() => sinon.restore());
 
-  it('getPostCurrentPrevInterimTermCodes should be fulfilled', async () => {
-    sinon.stub(contrib, 'getPostPrevInterimTerms').returns('postCurrPrevTermCodes');
-    const fulfilledResult = termsDao.getPostCurrentPrevInterimTermCodes(connStub);
+  it('getPostCurrentPreInterimTermCodes should be fulfilled', async () => {
+    sinon.stub(contrib, 'getPostPreInterimTerms').returns('postCurrPreTermCodes');
+    const fulfilledResult = termsDao.getPostCurrentPreInterimTermCodes(connStub);
 
     return fulfilledResult.should
       .eventually.be.fulfilled
       .and.deep.equal({
         postInterimTermCode: 'fakeTermCode',
         currentTermCode: 'fakeTermCode',
-        prevInterimTermCode: 'fakeTermCode',
+        preInterimTermCode: 'fakeTermCode',
       });
   });
   it('getTerms should be fulfilled', () => {
     const expectResult = [{}, {}];
 
     sinon.stub(contrib, 'getTerms').returns('multiResults');
-    sinon.stub(contrib, 'getPostPrevInterimTerms').returns('postCurrPrevTermCodes');
+    sinon.stub(contrib, 'getPostPreInterimTerms').returns('postCurrPreTermCodes');
     const fulfilledResult = termsDao.getTerms();
 
     return fulfilledResult.should
@@ -74,7 +74,7 @@ describe('Test terms-dao', () => {
       .eventually.be.rejectedWith(Error);
   });
   it('getTermByTermCode should be fulfilled', () => {
-    sinon.stub(contrib, 'getPostPrevInterimTerms').returns('postCurrPrevTermCodes');
+    sinon.stub(contrib, 'getPostPreInterimTerms').returns('postCurrPreTermCodes');
     const getTermsStub = sinon.stub(contrib, 'getTerms');
 
     const expectedSerializedSingleTerm = {};
@@ -97,7 +97,7 @@ describe('Test terms-dao', () => {
     return Promise.all(fulfilledPromises);
   });
   it('getTermByTermCode should be rejected', () => {
-    sinon.stub(contrib, 'getPostPrevInterimTerms').returns('postCurrPrevTermCodes');
+    sinon.stub(contrib, 'getPostPreInterimTerms').returns('postCurrPreTermCodes');
     sinon.stub(contrib, 'getTerms').returns('multiResults');
 
     const result = termsDao.getTermByTermCode();

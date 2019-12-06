@@ -76,13 +76,13 @@ paths:
             - `open` - terms that a student can register for
             - `not-open` - terms which are not open for registration yet
             - `post-interim` - post-interim term of the current date
-            - `prev-interim` - prev-interim term of the current date
+            - `pre-interim` - pre-interim term of the current date
           required: false
           type: array
           collectionFormat: csv
           items:
             type: string
-            enum: [completed, current, open, not-open, prev-interim, post-interim]
+            enum: [completed, current, open, not-open, pre-interim, post-interim]
       responses:
         '200':
           description: Successful response

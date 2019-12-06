@@ -5,22 +5,22 @@ import { getConnection } from './connection';
 import { contrib } from './contrib/contrib';
 
 /**
- * Get post interim, current, and prev interim term codes
+ * Get post-interim, current, and pre-interim term codes
  *
  * @param {object} connection connection
- * @returns {object} post interim, current, and prev interim term codes
+ * @returns {object} post-interim, current, and pre-interim term codes
  */
-const getPostCurrentPrevInterimTermCodes = async (connection) => {
-  const postPrevInterimTerms = await connection.execute(contrib.getPostPrevInterimTerms());
-  const { postInterimTermCode, prevInterimTermCode } = postPrevInterimTerms.rows[0];
+const getPostCurrentPreInterimTermCodes = async (connection) => {
+  const postPreInterimTerms = await connection.execute(contrib.getPostPreInterimTerms());
+  const { postInterimTermCode, preInterimTermCode } = postPreInterimTerms.rows[0];
   let currentTermCode;
-  if (postInterimTermCode === prevInterimTermCode) {
+  if (postInterimTermCode === preInterimTermCode) {
     currentTermCode = postInterimTermCode;
   }
   return {
     postInterimTermCode,
     currentTermCode,
-    prevInterimTermCode,
+    preInterimTermCode,
   };
 };
 
@@ -34,8 +34,8 @@ const getTerms = async (query) => {
   const connection = await getConnection();
   try {
     const { rows } = await connection.execute(contrib.getTerms());
-    const postCurrPrevTermCodes = await getPostCurrentPrevInterimTermCodes(connection);
-    const serializedTerms = serializeTerms(rows, postCurrPrevTermCodes, query);
+    const postCurrPreTermCodes = await getPostCurrentPreInterimTermCodes(connection);
+    const serializedTerms = serializeTerms(rows, postCurrPreTermCodes, query);
     return serializedTerms;
   } finally {
     connection.close();
@@ -53,7 +53,7 @@ const getTermByTermCode = async (termCode) => {
   const connection = await getConnection();
   try {
     const { rows } = await connection.execute(contrib.getTerms(termCode), [termCode]);
-    const postCurrPrevTermCodes = await getPostCurrentPrevInterimTermCodes(connection);
+    const postCurrPreTermCodes = await getPostCurrentPreInterimTermCodes(connection);
 
     if (_.isEmpty(rows)) {
       return undefined;
@@ -62,7 +62,7 @@ const getTermByTermCode = async (termCode) => {
       throw new Error('Expect a single object but got multiple results.');
     } else {
       const [rawTerm] = rows;
-      const serializedTerm = serializeTerm(rawTerm, postCurrPrevTermCodes);
+      const serializedTerm = serializeTerm(rawTerm, postCurrPreTermCodes);
       return serializedTerm;
     }
   } finally {
@@ -71,7 +71,7 @@ const getTermByTermCode = async (termCode) => {
 };
 
 export {
-  getPostCurrentPrevInterimTermCodes,
+  getPostCurrentPreInterimTermCodes,
   getTerms,
   getTermByTermCode,
 };
