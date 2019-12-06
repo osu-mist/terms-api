@@ -5,7 +5,7 @@ import { getConnection } from './connection';
 import { contrib } from './contrib/contrib';
 
 /**
- * Get current term code
+ * Get post interim, current, and prev interim term codes
  *
  * @param {object} connection connection
  * @returns {object} post interim, current, and prev interim term codes
