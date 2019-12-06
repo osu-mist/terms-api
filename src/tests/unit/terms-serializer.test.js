@@ -22,7 +22,7 @@ chai.use(chaiDatetime);
 const { expect } = chai;
 
 describe('Test terms-serializer', () => {
-  const { defaultPaginationQuery, fakeCurrentTermCode } = testData;
+  const { defaultPaginationQuery, fakePostCurrPrevTermCodes } = testData;
   let clock;
 
   /**
@@ -87,7 +87,7 @@ describe('Test terms-serializer', () => {
     const { generateTermStatusTestCases } = testData;
 
     _.forEach(generateTermStatusTestCases, ({ testCase, status }) => {
-      generateTermStatus(testCase, fakeCurrentTermCode);
+      generateTermStatus(testCase, fakePostCurrPrevTermCodes);
       expect(testCase.status).to.be.containingAllOf(status);
     });
   });
@@ -109,7 +109,7 @@ describe('Test terms-serializer', () => {
       const clonedFakeTermsTestCases = _.clone(fakeTermsTestCases);
       const query = { ...defaultPaginationQuery, ...testQuery };
 
-      const { data } = serializeTerms(clonedFakeTermsTestCases, fakeCurrentTermCode, query);
+      const { data } = serializeTerms(clonedFakeTermsTestCases, fakePostCurrPrevTermCodes, query);
       const field = _.keys(testQuery)[0];
       const expectedValue = _.values(testQuery)[0];
 
@@ -169,7 +169,7 @@ describe('Test terms-serializer', () => {
     // check resource schema
     const clonedFakeTermsTestCases = _.clone(fakeTermsTestCases);
     const serializedTerms = serializeTerms(
-      clonedFakeTermsTestCases, fakeCurrentTermCode, defaultPaginationQuery,
+      clonedFakeTermsTestCases, fakePostCurrPrevTermCodes, defaultPaginationQuery,
     );
     expect(serializedTerms).to.have.keys(getDefinitionProps('TermsResult'));
 
@@ -184,7 +184,7 @@ describe('Test terms-serializer', () => {
     const { fakeTermsTestCases } = testData;
 
     _.forEach(fakeTermsTestCases, (fakeTermsTestCase) => {
-      const serializedTerm = serializeTerm(fakeTermsTestCase);
+      const serializedTerm = serializeTerm(fakeTermsTestCase, fakePostCurrPrevTermCodes);
       expect(serializedTerm).to.have.keys(getDefinitionProps('TermResult'));
 
       const { links, data } = serializedTerm;

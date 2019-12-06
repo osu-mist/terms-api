@@ -1,5 +1,9 @@
 const defaultPaginationQuery = { 'page[number]': 1, 'page[size]': 25 };
-const fakeCurrentTermCode = '201902';
+const fakePostCurrPrevTermCodes = {
+  postInterimTermCode: '201902',
+  currentTermCode: '201902',
+  prevInterimTermCode: '201902',
+};
 const fakeTermsTestCases = [
   {
     termCode: '202003',
@@ -113,7 +117,7 @@ const generateTermStatusTestCases = [
     testCase: {
       termCode: '201902', registrationStartDate: '2019-01-01', registrationEndDate: '2019-04-01',
     },
-    status: ['current', 'open'],
+    status: ['current', 'open', 'post-interim', 'prev-interim'],
   },
   {
     testCase: {
@@ -154,7 +158,7 @@ const inEnumsQueryTestCases = [
 
 module.exports = {
   defaultPaginationQuery,
-  fakeCurrentTermCode,
+  fakePostCurrPrevTermCodes,
   fakeTermsTestCases,
   generateCalendarYearAndSeasonTestCases,
   generateTermStatusTestCases,
