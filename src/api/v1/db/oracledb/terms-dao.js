@@ -8,7 +8,7 @@ import { contrib } from './contrib/contrib';
  * Get post-interim, current, and pre-interim term codes
  *
  * @param {object} connection connection
- * @returns {object} post-interim, current, and prev-interim term codes
+ * @returns {object} post-interim, current, and pre-interim term codes
  */
 const getPostCurrentPreInterimTermCodes = async (connection) => {
   const postPreInterimTerms = await connection.execute(contrib.getPostPreInterimTerms());
