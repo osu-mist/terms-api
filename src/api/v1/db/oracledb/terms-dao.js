@@ -5,21 +5,23 @@ import { getConnection } from './connection';
 import { contrib } from './contrib/contrib';
 
 /**
- * Get current term code
+ * Get post interim, current, and prev interim term codes
  *
  * @param {object} connection connection
- * @returns {Promise<string>} current term code
+ * @returns {object} post interim, current, and prev interim term codes
  */
-const getCurrentTermCode = async (connection) => {
-  const { rows } = await connection.execute(contrib.getCurrentTerm());
-  if (_.isEmpty(rows)) {
-    throw new Error('Expect a single object but got empty results.');
-  } else if (rows.length > 1) {
-    throw new Error('Expect a single object but got multiple results.');
-  } else if (rows[0].termCode === undefined) {
-    throw new Error('Result doesn\'t contain term code.');
+const getPostCurrentPrevInterimTermCodes = async (connection) => {
+  const postPrevInterimTerms = await connection.execute(contrib.getPostPrevInterimTerms());
+  const { postInterimTermCode, prevInterimTermCode } = postPrevInterimTerms.rows[0];
+  let currentTermCode;
+  if (postInterimTermCode === prevInterimTermCode) {
+    currentTermCode = postInterimTermCode;
   }
-  return rows[0].termCode;
+  return {
+    postInterimTermCode,
+    currentTermCode,
+    prevInterimTermCode,
+  };
 };
 
 /**
@@ -32,8 +34,8 @@ const getTerms = async (query) => {
   const connection = await getConnection();
   try {
     const { rows } = await connection.execute(contrib.getTerms());
-    const currentTermCode = await getCurrentTermCode(connection);
-    const serializedTerms = serializeTerms(rows, currentTermCode, query);
+    const postCurrPrevTermCodes = await getPostCurrentPrevInterimTermCodes(connection);
+    const serializedTerms = serializeTerms(rows, postCurrPrevTermCodes, query);
     return serializedTerms;
   } finally {
     connection.close();
@@ -51,7 +53,7 @@ const getTermByTermCode = async (termCode) => {
   const connection = await getConnection();
   try {
     const { rows } = await connection.execute(contrib.getTerms(termCode), [termCode]);
-    const currentTermCode = await getCurrentTermCode(connection);
+    const postCurrPrevTermCodes = await getPostCurrentPrevInterimTermCodes(connection);
 
     if (_.isEmpty(rows)) {
       return undefined;
@@ -60,7 +62,7 @@ const getTermByTermCode = async (termCode) => {
       throw new Error('Expect a single object but got multiple results.');
     } else {
       const [rawTerm] = rows;
-      const serializedTerm = serializeTerm(rawTerm, currentTermCode);
+      const serializedTerm = serializeTerm(rawTerm, postCurrPrevTermCodes);
       return serializedTerm;
     }
   } finally {
@@ -69,7 +71,7 @@ const getTermByTermCode = async (termCode) => {
 };
 
 export {
-  getCurrentTermCode,
+  getPostCurrentPrevInterimTermCodes,
   getTerms,
   getTermByTermCode,
 };
