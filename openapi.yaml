@@ -19,6 +19,11 @@ externalDocs:
   url: https://github.com/osu-mist/terms-api
 produces:
   - application/json
+consumes:
+  - application/json
+security:
+  - OAuth2:
+      - full
 paths:
   /terms:
     get:
@@ -28,7 +33,6 @@ paths:
       description: Get terms
       operationId: getTerms
       parameters:
-        - $ref: '#/parameters/authorization'
         - $ref: '#/parameters/pageNumber'
         - $ref: '#/parameters/pageSize'
         - in: query
@@ -104,7 +108,6 @@ paths:
       description: Get term by term code
       operationId: getTermByTermCode
       parameters:
-        - $ref: '#/parameters/authorization'
         - name: termCode
           in: path
           description: 6-digit unique code
@@ -125,12 +128,6 @@ paths:
           schema:
             $ref: '#/definitions/ErrorResult'
 parameters:
-  authorization:
-    name: Authorization
-    in: header
-    type: string
-    required: true
-    description: '"Bearer [token]" where [token] is your OAuth2 access token'
   pageNumber:
     name: page[number]
     in: query
@@ -148,6 +145,13 @@ parameters:
     default: 25
     maximum: 500
     minimum: 1
+securityDefinitions:
+  OAuth2:
+    type: oauth2
+    flow: application
+    tokenUrl: https://api.oregonstate.edu/oauth2/token
+    scopes:
+      full: Full access to the API
 definitions:
   Meta:
     properties:
@@ -267,7 +271,7 @@ definitions:
             description: The status of the term
             items:
               type: string
-              enum: [completed, current, open, not-open]
+              enum: [completed, current, open, not-open, post-interim, pre-interim]
             example: [current, open]
   TermResult:
     properties:
