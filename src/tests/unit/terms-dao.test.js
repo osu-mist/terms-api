@@ -60,7 +60,9 @@ describe('Test terms-dao', () => {
 
     sinon.stub(contrib, 'getTerms').returns('multiResults');
     sinon.stub(contrib, 'getPostPreInterimTerms').returns('postCurrPreTermCodes');
-    const fulfilledResult = termsDao.getTerms();
+    sinon.stub(contrib, 'getPostInterimTermOfDate').returns('fakeTermCode');
+    sinon.stub(contrib, 'getPreInterimTermOfDate').returns('fakeTermCode');
+    const fulfilledResult = termsDao.getTerms({});
 
     return fulfilledResult.should
       .eventually.be.fulfilled
