@@ -25,6 +25,22 @@ const getPostCurrentPreInterimTermCodes = async (connection) => {
 };
 
 /**
+ * Get interim term of date
+ *
+ * @param {object} connection connection
+ * @param {string} interimTermDate interim term date
+ * @param {Function} sql sql statement to be executed
+ * @returns {Promise<string>} Promise string represents the interim term of the date
+ */
+const getInterimTermOfDate = async (connection, interimTermDate, sql) => {
+  if (interimTermDate) {
+    const rawInterimTermCode = await connection.execute(sql(interimTermDate));
+    return rawInterimTermCode.rows[0].interimTermCode;
+  }
+  return undefined;
+};
+
+/**
  * Return a list of terms
  *
  * @param {string} query query
@@ -33,10 +49,37 @@ const getPostCurrentPreInterimTermCodes = async (connection) => {
 const getTerms = async (query) => {
   const connection = await getConnection();
   try {
-    const { rows } = await connection.execute(contrib.getTerms());
     const postCurrPreTermCodes = await getPostCurrentPreInterimTermCodes(connection);
-    const serializedTerms = serializeTerms(rows, postCurrPreTermCodes, query);
-    return serializedTerms;
+
+    const { postInterimTermDate, preInterimTermDate } = query;
+
+    const postInterimTermOfDate = await getInterimTermOfDate(
+      connection, postInterimTermDate, contrib.getPostInterimTermOfDate,
+    );
+    const preInterimTermOfDate = await getInterimTermOfDate(
+      connection, preInterimTermDate, contrib.getPreInterimTermOfDate,
+    );
+
+    /**
+     * If postInterimTermOfDate and preInterimTermOfDate point to different terms, return an empty
+     * array since it's not possible to have a term that qualifies both conditions at the same time.
+     */
+    if (
+      (postInterimTermOfDate && preInterimTermOfDate)
+      && postInterimTermOfDate !== preInterimTermOfDate
+    ) {
+      return serializeTerms([], postCurrPreTermCodes, query);
+    }
+    const termCode = postInterimTermOfDate || preInterimTermOfDate;
+
+    let rawTerms;
+    if (termCode) {
+      rawTerms = await connection.execute(contrib.getTerms(termCode), [termCode]);
+    } else {
+      rawTerms = await connection.execute(contrib.getTerms());
+    }
+
+    return serializeTerms(rawTerms.rows, postCurrPreTermCodes, query);
   } finally {
     connection.close();
   }

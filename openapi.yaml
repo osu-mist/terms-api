@@ -60,6 +60,18 @@ paths:
           type: string
           format: date
         - in: query
+          name: postInterimTermDate
+          description: Search the post-interim term for a specific date. For example, 2019-01-01
+          required: false
+          type: string
+          format: date
+        - in: query
+          name: preInterimTermDate
+          description: Search the pre-interim term for a specific date. For example, 2019-01-01
+          required: false
+          type: string
+          format: date
+        - in: query
           name: housingDate
           description: Search term by housing date. For example, 2019-01-01
           required: false
