@@ -4,14 +4,9 @@ import chaiAsPromised from 'chai-as-promised';
 import chaiDatetime from 'chai-datetime';
 import _ from 'lodash';
 import moment from 'moment-timezone';
+import proxyquire from 'proxyquire';
 import sinon from 'sinon';
 
-import {
-  generateCalendarYearAndSeason,
-  generateTermStatus,
-  serializeTerm,
-  serializeTerms,
-} from 'api/v1/serializers/terms-serializer';
 import testData from 'tests/unit/test-data';
 import { openapi } from 'utils/load-openapi';
 
@@ -21,9 +16,13 @@ chai.use(chaiAsPromised);
 chai.use(chaiDatetime);
 const { expect } = chai;
 
+let termsSerializer;
+
 describe('Test terms-serializer', () => {
   const { defaultPaginationQuery, fakePostCurrPreTermCodes } = testData;
   let clock;
+
+  termsSerializer = proxyquire('../../api/v1/serializers/terms-serializer', {});
 
   /**
    * Helper function to get definition from openapi specification
@@ -78,7 +77,7 @@ describe('Test terms-serializer', () => {
     const { generateCalendarYearAndSeasonTestCases } = testData;
 
     _.forEach(generateCalendarYearAndSeasonTestCases, ({ testCase, season, calendarYear }) => {
-      generateCalendarYearAndSeason(testCase);
+      termsSerializer.generateCalendarYearAndSeason(testCase);
       expect(testCase.season).to.equal(season);
       expect(testCase.calendarYear).to.equal(calendarYear);
     });
@@ -87,7 +86,7 @@ describe('Test terms-serializer', () => {
     const { generateTermStatusTestCases } = testData;
 
     _.forEach(generateTermStatusTestCases, ({ testCase, status }) => {
-      generateTermStatus(testCase, fakePostCurrPreTermCodes);
+      termsSerializer.generateTermStatus(testCase, fakePostCurrPreTermCodes);
       expect(testCase.status).to.be.containingAllOf(status);
     });
   });
@@ -109,7 +108,11 @@ describe('Test terms-serializer', () => {
       const clonedFakeTermsTestCases = _.clone(fakeTermsTestCases);
       const query = { ...defaultPaginationQuery, ...testQuery };
 
-      const { data } = serializeTerms(clonedFakeTermsTestCases, fakePostCurrPreTermCodes, query);
+      const { data } = termsSerializer.serializeTerms(
+        clonedFakeTermsTestCases,
+        fakePostCurrPreTermCodes,
+        query,
+      );
       const field = _.keys(testQuery)[0];
       const expectedValue = _.values(testQuery)[0];
 
@@ -168,7 +171,7 @@ describe('Test terms-serializer', () => {
 
     // check resource schema
     const clonedFakeTermsTestCases = _.clone(fakeTermsTestCases);
-    const serializedTerms = serializeTerms(
+    const serializedTerms = termsSerializer.serializeTerms(
       clonedFakeTermsTestCases, fakePostCurrPreTermCodes, defaultPaginationQuery,
     );
     expect(serializedTerms).to.have.keys(getDefinitionProps('TermsResult'));
@@ -184,7 +187,10 @@ describe('Test terms-serializer', () => {
     const { fakeTermsTestCases } = testData;
 
     _.forEach(fakeTermsTestCases, (fakeTermsTestCase) => {
-      const serializedTerm = serializeTerm(fakeTermsTestCase, fakePostCurrPreTermCodes);
+      const serializedTerm = termsSerializer.serializeTerm(
+        fakeTermsTestCase,
+        fakePostCurrPreTermCodes,
+      );
       expect(serializedTerm).to.have.keys(getDefinitionProps('TermResult'));
 
       const { links, data } = serializedTerm;

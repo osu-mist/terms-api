@@ -7,11 +7,11 @@ import sinon from 'sinon';
 
 import { contrib } from 'api/v1/db/oracledb/contrib/contrib';
 
-sinon.replace(config, 'get', () => ({ oracledb: {} }));
 chai.should();
 chai.use(chaiAsPromised);
 
 describe('Test terms-dao', () => {
+  sinon.replace(config, 'get', () => ({ oracledb: {} }));
   const connStub = {
     execute: (sql) => {
       const sqlResults = {
