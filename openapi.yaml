@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   title: Terms API
-  description: The API provides terms data.
+  description: Get information about terms
   version: v1
   license:
     name: GNU Affero General Public License Version 3
